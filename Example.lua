@@ -16,8 +16,8 @@ local Window = Library:CreateWindow({
 	-- Set AutoShow to true if you want the menu to appear when it is created
 	-- Set Resizable to true if you want to have in-game resizable Window
 	-- Set ShowCustomCursor to false if you don't want to use the Linoria cursor
-	-- NotifySide = Changes the side of the notifications (Left, Right) (Default value = Left)
-	-- Position and Size are also valid options here
+	-- NotifySide = Changes the side of the notifications (Left, Right) (Default value = Right)
+	-- Size is also a valid option here
 	-- but you do not need to define them unless you are changing them :)
 
 	Title = "mspaint",
