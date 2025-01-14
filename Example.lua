@@ -36,7 +36,7 @@ local Window = Library:CreateWindow({
 local Tabs = {
 	-- Creates a new tab titled Main
 	Main = Window:AddTab("Main", "user"),
-	Key = Window:AddKeyTab(),
+	Key = Window:AddKeyTab("Key System"),
 	["UI Settings"] = Window:AddTab("UI Settings", "settings"),
 }
 
