@@ -10,7 +10,6 @@ local Options = Library.Options
 local Toggles = Library.Toggles
 
 Library.ShowToggleFrameInKeybinds = true -- Make toggle keybinds work inside the keybinds UI (aka adds a toggle to the UI). Good for mobile users (Default value = true)
-Library.ShowCustomCursor = true -- Toggles the Linoria cursor globaly (Default value = true)
 
 local Window = Library:CreateWindow({
 	-- Set Center to true if you want the menu to appear in the center
@@ -24,6 +23,8 @@ local Window = Library:CreateWindow({
 	Title = "mspaint",
 	Footer = "version: example",
 	Icon = 95816097006870,
+	NotifySide = "Right",
+	ShowCustomCursor = true,
 })
 
 -- CALLBACK NOTE:
