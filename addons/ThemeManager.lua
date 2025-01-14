@@ -96,18 +96,21 @@ local ThemeManager = {} do
         local data = customThemeData or self.BuiltInThemes[theme]
 
         if not data then return end
-
-        -- custom themes are just regular dictionaries instead of an array with { index, dictionary }
-        if self.Library.InnerVideoBackground ~= nil then
-            self.Library.InnerVideoBackground.Visible = false
-        end
         
         local scheme = data[2]
-        for idx, col in next, customThemeData or scheme do
-            self.Library[idx] = Color3.fromHex(col)
+        for idx, val in pairs(customThemeData or scheme) do
+            if idx == "FontFace" then
+                self.Library:SetFont(Enum.Font[val])
+
+                if self.Library.Options[idx] then
+                    self.Library.Options[idx]:SetValue(val)
+                end
+            else
+                self.Library[idx] = Color3.fromHex(val)
             
-            if self.Library.Options[idx] then
-                self.Library.Options[idx]:SetValueRGB(Color3.fromHex(col))
+                if self.Library.Options[idx] then
+                    self.Library.Options[idx]:SetValueRGB(Color3.fromHex(val))
+                end
             end
         end
 
@@ -115,19 +118,13 @@ local ThemeManager = {} do
     end
 
     function ThemeManager:ThemeUpdate()
-        -- This allows us to force apply themes without loading the themes tab :)
-        if self.Library.InnerVideoBackground ~= nil then
-            self.Library.InnerVideoBackground.Visible = false
-        end
-
-        local options = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor", "VideoLink" }
-        for i, field in next, options do
+        local options = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
+        for i, field in pairs(options) do
             if self.Library.Options and self.Library.Options[field] then
                 self.Library[field] = self.Library.Options[field].Value
             end
         end
 
-        self.Library.AccentColorDark = self.Library:GetDarkerColor(self.Library.AccentColor)
         self.Library:UpdateColorsUsingRegistry()
     end
 
@@ -181,15 +178,12 @@ local ThemeManager = {} do
         end
 
         local theme = {}
-        local fields = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor", "VideoLink" }
+        local fields = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
 
-        for _, field in next, fields do
-            if field == "VideoLink" then
-                theme[field] = self.Library.Options[field].Value
-            else
-                theme[field] = self.Library.Options[field].Value:ToHex()
-            end
+        for _, field in pairs(fields) do
+            theme[field] = self.Library.Options[field].Value:ToHex()
         end
+        theme["FontFace"] = self.Library.Options["FontFace"].Value
 
         writefile(self.Folder .. "/themes/" .. file .. ".json", httpService:JSONEncode(theme))
     end
@@ -245,15 +239,12 @@ local ThemeManager = {} do
         groupbox:AddDropdown("FontFace", {
             Text = "Font Face",
             Default = "Code",
-            Values = {"BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans"},
-            Callback = function(Value)
-                Library:SetFont(Enum.Font[Value])
-            end,
+            Values = {"BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans"}
         })
 
         
         local ThemesArray = {}
-        for Name, Theme in next, self.BuiltInThemes do
+        for Name, Theme in pairs(self.BuiltInThemes) do
             table.insert(ThemesArray, Name)
         end
 
@@ -337,6 +328,10 @@ local ThemeManager = {} do
         self.Library.Options.AccentColor:OnChanged(UpdateTheme)
         self.Library.Options.OutlineColor:OnChanged(UpdateTheme)
         self.Library.Options.FontColor:OnChanged(UpdateTheme)
+        self.Library.Options.FontFace:OnChanged(function(Value)
+            Library:SetFont(Enum.Font[Value])
+            Library:UpdateColorsUsingRegistry()
+        end)
     end
 
     function ThemeManager:CreateGroupBox(tab)
