@@ -35,7 +35,7 @@ if typeof(copyfunction) == "function" then
 end
 
 local ThemeManager = {} do
-    ThemeManager.Folder = "WasteLibSettings"
+    ThemeManager.Folder = "ObsidianLibSettings"
     -- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
     ThemeManager.Library = nil
@@ -355,5 +355,5 @@ local ThemeManager = {} do
     ThemeManager:BuildFolderTree()
 end
 
-getgenv().WasteThemeManager = ThemeManager
+getgenv().ObsidianThemeManager = ThemeManager
 return ThemeManager
