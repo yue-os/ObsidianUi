@@ -1,7 +1,7 @@
 -- example script by https://github.com/mstudio45/LinoriaLib/blob/main/Example.lua and modified by deivid
 -- You can suggest changes with a pull request or something
 
-local repo = "https://raw.githubusercontent.com/deividcomsono/Waste/main/"
+local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
@@ -579,11 +579,11 @@ Tabs.Key:AddLabel({
 	Size = 16,
 })
 
-Tabs.Key:AddKeyBox("Banana", function(Success)
-	print("Expected Key: Banana", Success)
+Tabs.Key:AddKeyBox("Banana", function(Success, ReceivedKey)
+	print("Expected Key: Banana - Received Key:", ReceivedKey, "| Success:", Success)
 	Library:Notify({
 		Title = "Expected Key: Banana",
-		Description = "Success: " .. tostring(Success),
+		Description = "Received Key: " .. ReceivedKey .. "\nSuccess: " .. tostring(Success),
 		Time = 4,
 	})
 end)
@@ -594,8 +594,8 @@ Tabs.Key:AddLabel({
 	Size = 16,
 })
 
-Tabs.Key:AddKeyBox(function(Success)
-	print("No Expected Key", Success) -- true
+Tabs.Key:AddKeyBox(function(Success, ReceivedKey)
+	print("Expected Key: None | Success:", Success) -- true
 	Library:Notify("Success: " .. tostring(Success), 4)
 end)
 
