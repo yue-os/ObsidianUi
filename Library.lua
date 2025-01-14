@@ -32,8 +32,11 @@ local Library = {
 	KeybindContainer = nil,
 	KeybindToggles = {},
 
+	Notifications = {},
+
 	ToggleKeybind = Enum.KeyCode.RightControl,
 	TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	NotifyTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 
 	Toggled = false,
 	Unloaded = false,
@@ -48,12 +51,14 @@ local Library = {
 	ShowToggleFrameInKeybinds = true,
 	NotifyOnError = false,
 
+	CantDragForced = false,
+
 	Signals = {},
 	UnloadCallbacks = {},
 
+	MinSize = Vector2.new(480, 360),
 	DPIScale = 1,
 	CornerRadius = 4,
-	Font = Font.fromEnum(Enum.Font.Code),
 
 	IsLightTheme = false,
 	BackgroundColor = Color3.fromRGB(15, 15, 15),
@@ -61,6 +66,7 @@ local Library = {
 	AccentColor = Color3.fromRGB(125, 85, 255),
 	OutlineColor = Color3.fromRGB(40, 40, 40),
 	FontColor = Color3.new(1, 1, 1),
+	Font = Font.fromEnum(Enum.Font.Code),
 
 	Red = Color3.fromRGB(255, 50, 50),
 	Dark = Color3.new(0, 0, 0),
@@ -73,6 +79,7 @@ pcall(function()
 	Library.DevicePlatform = UserInputService:GetPlatform()
 end)
 Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS)
+Library.MinSize = Library.IsMobile and Vector2.new(480, 240) or Vector2.new(480, 360)
 
 local Templates = {
 	--// UI \\-
@@ -354,6 +361,7 @@ end
 
 function Library:SetDPIScale(DPIScale: number)
 	Library.DPIScale = DPIScale / 100
+	Library.MinSize = (Library.IsMobile and Vector2.new(480, 240) or Vector2.new(480, 360)) * Library.DPIScale
 
 	for Instance, Properties in pairs(Library.DPIRegistry) do
 		for Property, Value in pairs(Properties) do
@@ -364,6 +372,14 @@ function Library:SetDPIScale(DPIScale: number)
 			else
 				Instance[Property] = ApplyDPIScale(Value, Properties["DPIOffset"][Property])
 			end
+		end
+	end
+
+	for _, Option in pairs(Options) do
+		if Option.Type == "Dropdown" then
+			Option:RecalculateListSize()
+		elseif Option.Type == "KeyPicker" then
+			Option:Update()
 		end
 	end
 
@@ -382,15 +398,10 @@ function Library:SetDPIScale(DPIScale: number)
 		end
 	end
 
-	for _, Option in pairs(Options) do
-		if Option.Type == "Dropdown" then
-			Option:RecalculateListSize()
-		elseif Option.Type == "KeyPicker" then
-			Option:Update()
-		end
-	end
-
 	Library:UpdateKeybindFrame()
+	for _, Notification in pairs(Library.Notifications) do
+		Notification:Resize()
+	end
 end
 
 function Library:GiveSignal(Connection: RBXScriptConnection)
@@ -439,6 +450,8 @@ local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 	for k, v in pairs(Table) do
 		if k == "DPIOffset" then
 			continue
+		elseif ThemeProperties[k] then
+			ThemeProperties[k] = nil
 		elseif (Library[v] and typeof(Library[v]) ~= "function") or typeof(v) == "function" then
 			ThemeProperties[k] = v
 			Instance[k] = Library[v] or v()
@@ -492,7 +505,7 @@ local function ParentUI(UI: Instance)
 end
 
 local ScreenGui = New("ScreenGui", {
-	Name = "Waste",
+	Name = "Obsidian",
 	DisplayOrder = 999,
 	ResetOnSpawn = false,
 })
@@ -630,13 +643,13 @@ function Library:SafeCallback(Func: (...any) -> ...any, ...: any)
 	end
 end
 
-function Library:MakeDraggable(UI: GuiObject, DragFrame: GuiObject, IgnoreToggled: boolean?)
+function Library:MakeDraggable(UI: GuiObject, DragFrame: GuiObject, IgnoreToggled: boolean?, IsMainWindow: boolean?)
 	local StartPos
 	local FramePos
 	local Dragging = false
 	local Changed
 	DragFrame.InputBegan:Connect(function(Input: InputObject)
-		if not IsClickInput(Input) then
+		if not IsClickInput(Input) or IsMainWindow and Library.CantDragForced then
 			return
 		end
 
@@ -657,7 +670,11 @@ function Library:MakeDraggable(UI: GuiObject, DragFrame: GuiObject, IgnoreToggle
 		end)
 	end)
 	Library:GiveSignal(UserInputService.InputChanged:Connect(function(Input: InputObject)
-		if not IgnoreToggled and not Library.Toggled or not (ScreenGui and ScreenGui.Parent) then
+		if
+			(not IgnoreToggled and not Library.Toggled)
+			or (IsMainWindow and Library.CantDragForced)
+			or not (ScreenGui and ScreenGui.Parent)
+		then
 			Dragging = false
 			if Changed and Changed.Connected then
 				Changed:Disconnect()
@@ -675,7 +692,7 @@ function Library:MakeDraggable(UI: GuiObject, DragFrame: GuiObject, IgnoreToggle
 	end))
 end
 
-function Library:MakeResizable(UI: GuiObject, DragFrame: GuiObject, Callback: () -> ())
+function Library:MakeResizable(UI: GuiObject, DragFrame: GuiObject, Callback: () -> ()?)
 	local StartPos
 	local FrameSize
 	local Dragging = false
@@ -716,9 +733,9 @@ function Library:MakeResizable(UI: GuiObject, DragFrame: GuiObject, Callback: ()
 			local Delta = Input.Position - StartPos
 			UI.Size = UDim2.new(
 				FrameSize.X.Scale,
-				FrameSize.X.Offset + Delta.X,
+				math.clamp(FrameSize.X.Offset + Delta.X, Library.MinSize.X, math.huge),
 				FrameSize.Y.Scale,
-				FrameSize.Y.Offset + Delta.Y
+				math.clamp(FrameSize.Y.Offset + Delta.Y, Library.MinSize.Y, math.huge)
 			)
 			if Callback then
 				Library:SafeCallback(Callback)
@@ -786,13 +803,11 @@ function Library:MakeOutline(Frame: GuiObject, Corner: number?, ZIndex: number?)
 end
 
 function Library:AddDraggableButton(Text: string, Func)
-	local X, Y = Library:GetTextBounds(Text, Library.Font, 16)
+	local Table = {}
 
 	local Button = New("TextButton", {
 		BackgroundColor3 = "BackgroundColor",
 		Position = UDim2.fromOffset(6, 6),
-		Size = UDim2.fromOffset(X * 2, Y * 2),
-		Text = Text,
 		TextSize = 16,
 		ZIndex = 10,
 		Parent = ScreenGui,
@@ -806,8 +821,24 @@ function Library:AddDraggableButton(Text: string, Func)
 		Position = false,
 	})
 
-	Button.MouseButton1Click:Connect(Func)
+	Table.Button = Button
+	Button.MouseButton1Click:Connect(function()
+		Library:SafeCallback(Func, Table)
+	end)
 	Library:MakeDraggable(Button, Button, true)
+
+	function Table:SetText(NewText: string)
+		local X, Y = Library:GetTextBounds(NewText, Library.Font, 16)
+
+		Button.Text = NewText
+		Button.Size = UDim2.fromOffset(X * Library.DPIScale * 2, Y * Library.DPIScale * 2)
+		Library:UpdateDPI(Button, {
+			Size = UDim2.fromOffset(X * 2, Y * 2),
+		})
+	end
+	Table:SetText(Text)
+
+	return Table
 end
 
 function Library:AddDraggableMenu(Name: string)
@@ -3324,10 +3355,23 @@ function Library:Notify(...)
 		Data.SoundId = select(3, ...)
 	end
 
-	local Background = Library:MakeOutline(NotificationArea, Library.CornerRadius, 5)
+	local FakeBackground = New("Frame", {
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		Visible = false,
+		Parent = NotificationArea,
+	})
+	Library:UpdateDPI(FakeBackground, {
+		Size = false,
+	})
+
+	local Background = Library:MakeOutline(FakeBackground, Library.CornerRadius, 5)
 	Background.AutomaticSize = Enum.AutomaticSize.Y
+	Background.Position = Library.NotifySide:lower() == "left" and UDim2.new(-1, -6, 0, -2) or UDim2.new(1, 6, 0, -2)
 	Background.Size = UDim2.fromScale(1, 0)
 	Library:UpdateDPI(Background, {
+		Position = false,
 		Size = false,
 	})
 
@@ -3353,37 +3397,63 @@ function Library:Notify(...)
 		Parent = Holder,
 	})
 
+	local Title
+	local Desc
 	local TitleX = 0
 	local DescX = 0
 
 	if Data.Title then
-		local X, Y = Library:GetTextBounds(Data.Title, Library.Font, 15, Background.AbsoluteSize.X - 24)
-		TitleX = X
-
-		New("TextLabel", {
+		Title = New("TextLabel", {
 			BackgroundTransparency = 1,
-			Size = UDim2.fromOffset(X, Y),
 			Text = Data.Title,
 			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
+			TextWrapped = true,
 			Parent = Holder,
+		})
+		Library:UpdateDPI(Title, {
+			Size = false,
 		})
 	end
 	if Data.Description then
-		local X, Y = Library:GetTextBounds(Data.Description, Library.Font, 14, Background.AbsoluteSize.X - 24)
-		DescX = X
-
-		New("TextLabel", {
+		Desc = New("TextLabel", {
 			BackgroundTransparency = 1,
-			Size = UDim2.fromOffset(X, Y + 2),
 			Text = Data.Description,
 			TextSize = 14,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
 			Parent = Holder,
 		})
+		Library:UpdateDPI(Desc, {
+			Size = false,
+		})
 	end
-	Background.Size = UDim2.fromOffset((TitleX > DescX and TitleX or DescX) + 24, 0)
+
+	function Data:Resize()
+		if Title then
+			local X, Y = Library:GetTextBounds(
+				Title.Text,
+				Title.FontFace,
+				Title.TextSize,
+				NotificationArea.AbsoluteSize.X - (24 * Library.DPIScale)
+			)
+			Title.Size = UDim2.fromOffset(X, Y)
+			TitleX = X
+		end
+		if Desc then
+			local X, Y = Library:GetTextBounds(
+				Desc.Text,
+				Desc.FontFace,
+				Desc.TextSize,
+				NotificationArea.AbsoluteSize.X - (24 * Library.DPIScale)
+			)
+			Desc.Size = UDim2.fromOffset(X, Y)
+			DescX = X
+		end
+
+		FakeBackground.Size = UDim2.fromOffset((TitleX > DescX and TitleX or DescX) + (24 * Library.DPIScale), 0)
+	end
+	Data:Resize()
 
 	local TimerHolder = New("Frame", {
 		BackgroundTransparency = 1,
@@ -3414,7 +3484,14 @@ function Library:Notify(...)
 		}):Destroy()
 	end
 
-	task.spawn(function()
+	Library.Notifications[FakeBackground] = Data
+
+	FakeBackground.Visible = true
+	TweenService:Create(Background, Library.NotifyTweenInfo, {
+		Position = UDim2.fromOffset(-2, -2),
+	}):Play()
+
+	task.delay(Library.NotifyTweenInfo.Time, function()
 		if typeof(Data.Time) == "Instance" then
 			Data.Time.Destroying:Wait()
 		else
@@ -3426,7 +3503,13 @@ function Library:Notify(...)
 			task.wait(Data.Time)
 		end
 
-		Background:Destroy()
+		TweenService:Create(Background, Library.NotifyTweenInfo, {
+			Position = Library.NotifySide:lower() == "left" and UDim2.new(-1, -6, 0, -2) or UDim2.new(1, 6, 0, -2),
+		}):Play()
+		task.delay(Library.NotifyTweenInfo.Time, function()
+			Library.Notifications[FakeBackground] = nil
+			FakeBackground:Destroy()
+		end)
 	end)
 end
 
@@ -3512,33 +3595,44 @@ function Library:CreateWindow(WindowInfo)
 			Size = UDim2.new(1, 0, 0, 48),
 			Parent = MainFrame,
 		})
-		Library:MakeDraggable(MainFrame, TopBar)
+		Library:MakeDraggable(MainFrame, TopBar, false, true)
 
 		--// Title
-		local Title = New("TextLabel", {
+		local TitleHolder = New("Frame", {
 			BackgroundTransparency = 1,
 			Size = UDim2.fromScale(0.3, 1),
-			Text = WindowInfo.Title,
-			TextSize = 20,
 			Parent = TopBar,
+		})
+		New("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			Parent = TitleHolder,
 		})
 
 		if WindowInfo.Icon then
-			local X = Library:GetTextBounds(Title.Text, Title.FontFace, Title.TextSize, Title.AbsoluteSize.X)
-
 			New("ImageLabel", {
-				AnchorPoint = Vector2.new(0.5, 0.5),
 				Image = tonumber(WindowInfo.Icon) and "rbxassetid://" .. WindowInfo.Icon or WindowInfo.Icon,
-				Position = UDim2.new(
-					0.5,
-					-((X / 2) + (WindowInfo.IconSize.X.Offset / 2) + (7 * Library.DPIScale)),
-					0.5,
-					0
-				),
 				Size = WindowInfo.IconSize,
-				Parent = Title,
+				Parent = TitleHolder,
 			})
 		end
+
+		local X = Library:GetTextBounds(
+			WindowInfo.Title,
+			Library.Font,
+			20,
+			TitleHolder.AbsoluteSize.X - (WindowInfo.Icon and WindowInfo.IconSize.X.Offset + 6 or 0) - 12
+		)
+		New("TextLabel", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(0, X, 0, 1),
+			Text = WindowInfo.Title,
+			TextSize = 20,
+			TextWrapped = true,
+			Parent = TitleHolder,
+		})
 
 		--// Search Box
 		SearchBox = New("TextBox", {
@@ -3642,7 +3736,7 @@ function Library:CreateWindow(WindowInfo)
 
 			Library:MakeResizable(MainFrame, ResizeButton, function()
 				for _, Tab in pairs(Library.Tabs) do
-					Tab:Resize()
+					Tab:Resize(true)
 				end
 			end)
 		end
@@ -3854,6 +3948,7 @@ function Library:CreateWindow(WindowInfo)
 				Text = "",
 				TextSize = 14,
 				TextXAlignment = Enum.TextXAlignment.Left,
+				TextWrapped = true,
 				Parent = WarningBox,
 			})
 			New("UIStroke", {
@@ -3890,16 +3985,32 @@ function Library:CreateWindow(WindowInfo)
 
 				WarningText.Size = UDim2.new(1, 0, 0, Y)
 				WarningText.Text = Info.Text
+				Library:UpdateDPI(WarningText, { Size = WarningText.Size })
 				Tab:Resize()
 			end
 		end
 
-		function Tab:Resize()
-			local Offset = WarningBox.Visible and WarningBox.AbsoluteSize.Y + 12 or 0
+		function Tab:Resize(ResizeWarningBox: boolean?)
+			if ResizeWarningBox then
+				local _, Y = Library:GetTextBounds(
+					WarningText.Text,
+					Library.Font,
+					WarningText.TextSize,
+					WarningText.AbsoluteSize.X
+				)
 
+				WarningText.Size = UDim2.new(1, 0, 0, Y)
+				Library:UpdateDPI(WarningText, { Size = WarningText.Size })
+			end
+
+			local Offset = WarningBox.Visible and WarningBox.AbsoluteSize.Y + 6 or 0
 			for _, Side in pairs(Tab.Sides) do
 				Side.Position = UDim2.new(Side.Position.X.Scale, 0, 0, Offset)
 				Side.Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, -Offset)
+				Library:UpdateDPI(Side, {
+					Position = Side.Position,
+					Size = Side.Size,
+				})
 			end
 		end
 
@@ -4333,11 +4444,11 @@ function Library:CreateWindow(WindowInfo)
 
 			Button.MouseButton1Click:Connect(function()
 				if Data.ExpectedKey and Box.Text ~= Data.ExpectedKey then
-					Data.Callback(false)
+					Data.Callback(false, Box.Text)
 					return
 				end
 
-				Data.Callback(true)
+				Data.Callback(true, Box.Text)
 			end)
 		end
 
@@ -4462,7 +4573,15 @@ function Library:CreateWindow(WindowInfo)
 	end
 
 	if Library.IsMobile then
-		Library:AddDraggableButton("Toggle", Library.Toggle)
+		Library:AddDraggableButton("Toggle", function()
+			Library:Toggle()
+		end)
+
+		local LockButton = Library:AddDraggableButton("Lock", function(self)
+			Library.CantDragForced = not Library.CantDragForced
+			self:SetText(Library.CantDragForced and "Unlock" or "Lock")
+		end)
+		LockButton.Button.Position = UDim2.fromOffset(6, 46)
 	end
 
 	--// Execution \\--
