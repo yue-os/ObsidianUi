@@ -5,33 +5,33 @@ local getassetfunc = getcustomasset or getsynasset
 local isfolder, isfile, listfiles = isfolder, isfile, listfiles
 
 if typeof(copyfunction) == "function" then
-    -- Fix is_____ functions for shitsploits, those functions should never error, only return a boolean.
+	-- Fix is_____ functions for shitsploits, those functions should never error, only return a boolean.
 
-    local
-        isfolder_copy,
-        isfile_copy,
-        listfiles_copy = copyfunction(isfolder), copyfunction(isfile), copyfunction(listfiles)
+	local
+		isfolder_copy,
+		isfile_copy,
+		listfiles_copy = copyfunction(isfolder), copyfunction(isfile), copyfunction(listfiles)
 
-    local isfolder_success, isfolder_error = pcall(function()
-        return isfolder_copy("test" .. tostring(math.random(1000000, 9999999)))
-    end)
+	local isfolder_success, isfolder_error = pcall(function()
+		return isfolder_copy("test" .. tostring(math.random(1000000, 9999999)))
+	end)
 
-    if isfolder_success == false or typeof(isfolder_error) ~= "boolean" then
-        isfolder = function(folder)
-            local success, data = pcall(isfolder_copy, folder)
-            return (if success then data else false)
-        end
+	if isfolder_success == false or typeof(isfolder_error) ~= "boolean" then
+		isfolder = function(folder)
+			local success, data = pcall(isfolder_copy, folder)
+			return (if success then data else false)
+		end
 
-        isfile = function(file)
-            local success, data = pcall(isfile_copy, file)
-            return (if success then data else false)
-        end
+		isfile = function(file)
+			local success, data = pcall(isfile_copy, file)
+			return (if success then data else false)
+		end
 
-        listfiles = function(folder)
-            local success, data = pcall(listfiles_copy, folder)
-            return (if success then data else {})
-        end
-    end
+		listfiles = function(folder)
+			local success, data = pcall(listfiles_copy, folder)
+			return (if success then data else {})
+		end
+	end
 end
 
 local ThemeManager = {} do
@@ -56,7 +56,7 @@ local ThemeManager = {} do
 
 	--// Folders \\--
 	function ThemeManager:GetPaths()
-	    local paths = {}
+		local paths = {}
 
 		local parts = self.Folder:split("/")
 		for idx = 1, #parts do
@@ -104,11 +104,11 @@ local ThemeManager = {} do
 		
 		local scheme = data[2]
 		for idx, col in next, customThemeData or scheme do
-            self.Library[idx] = Color3.fromHex(col)
-            
-            if self.Library.Options[idx] then
-                self.Library.Options[idx]:SetValueRGB(Color3.fromHex(col))
-            end
+			self.Library[idx] = Color3.fromHex(col)
+			
+			if self.Library.Options[idx] then
+				self.Library.Options[idx]:SetValueRGB(Color3.fromHex(col))
+			end
 		end
 
 		self:ThemeUpdate()
@@ -242,14 +242,14 @@ local ThemeManager = {} do
 		groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor", { Default = self.Library.AccentColor })
 		groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor", { Default = self.Library.OutlineColor })
 		groupbox:AddLabel("Font color")	:AddColorPicker("FontColor", { Default = self.Library.FontColor })
-        groupbox:AddDropdown("FontFace", {
-            Text = "Font Face",
-            Default = "Code",
-            Values = {"BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans"},
-            Callback = function(Value)
-                Library:SetFont(Enum.Font[Value])
-            end,
-        })
+		groupbox:AddDropdown("FontFace", {
+			Text = "Font Face",
+			Default = "Code",
+			Values = {"BuilderSans", "Code", "Fantasy", "Gotham", "Jura", "Roboto", "RobotoMono", "SourceSans"},
+			Callback = function(Value)
+				Library:SetFont(Enum.Font[Value])
+			end,
+		})
 
 		
 		local ThemesArray = {}
