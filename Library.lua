@@ -124,6 +124,7 @@ local Templates = {
 	Window = {
 		Title = "No Title",
 		Footer = "No Footer",
+		Position = UDim2.fromOffset(6, 6),
 		Size = UDim2.fromOffset(720, 600),
 		IconSize = UDim2.fromOffset(30, 30),
 		AutoShow = true,
@@ -3464,6 +3465,7 @@ function Library:CreateWindow(WindowInfo)
 				return Library:GetBetterColor(Library.BackgroundColor, -1)
 			end,
 			Name = "Main",
+			Position = WindowInfo.Position,
 			Size = WindowInfo.Size,
 			Visible = false,
 			Parent = ScreenGui,
