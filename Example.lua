@@ -538,8 +538,6 @@ task.spawn(function()
 	while true do
 		wait(1)
 
-		Toggles.MyToggle:SetDisabled(not Toggles.MyToggle.Disabled)
-
 		-- example for checking if a keybind is being pressed
 		local state = Options.KeyPicker:GetState()
 		if state then
@@ -582,7 +580,12 @@ Tabs.Key:AddLabel({
 })
 
 Tabs.Key:AddKeyBox("Banana", function(Success)
-	print(Success)
+	print("Expected Key: Banana", Success)
+	Library:Notify({
+		Title = "Expected Key: Banana",
+		Description = "Success: " .. tostring(Success),
+		Time = 4,
+	})
 end)
 
 Tabs.Key:AddLabel({
@@ -592,7 +595,8 @@ Tabs.Key:AddLabel({
 })
 
 Tabs.Key:AddKeyBox(function(Success)
-	print(Success) -- true
+	print("No Expected Key", Success) -- true
+	Library:Notify("Success: " .. tostring(Success), 4)
 end)
 
 -- UI Settings
@@ -610,6 +614,16 @@ MenuGroup:AddToggle("ShowCustomCursor", {
 	Default = true,
 	Callback = function(Value)
 		Library.ShowCustomCursor = Value
+	end,
+})
+MenuGroup:AddDropdown("NotificationSide", {
+	Values = { "Left", "Right" },
+	Default = "Right",
+
+	Text = "Notification Side",
+
+	Callback = function(Value)
+		Library:SetNotifySide(Value)
 	end,
 })
 MenuGroup:AddDropdown("DPIDropdown", {
