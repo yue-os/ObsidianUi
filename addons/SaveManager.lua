@@ -172,7 +172,7 @@ local SaveManager = {} do
     end
 
     function SaveManager:SetIgnoreIndexes(list)
-        for _, key in next, list do
+        for _, key in pairs(list) do
             self.Ignore[key] = true
         end
     end
@@ -203,7 +203,7 @@ local SaveManager = {} do
             objects = {}
         }
 
-        for idx, toggle in next, self.Library.Toggles do
+        for idx, toggle in pairs(self.Library.Toggles) do
             if not toggle.Type then continue end
             if not self.Parser[toggle.Type] then continue end
             if self.Ignore[idx] then continue end
@@ -211,7 +211,7 @@ local SaveManager = {} do
             table.insert(data.objects, self.Parser[toggle.Type].Save(idx, toggle))
         end
 
-        for idx, option in next, self.Library.Options do
+        for idx, option in pairs(self.Library.Options) do
             if not option.Type then continue end
             if not self.Parser[option.Type] then continue end
             if self.Ignore[idx] then continue end
@@ -244,7 +244,7 @@ local SaveManager = {} do
         local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
         if not success then return false, "decode error" end
 
-        for _, option in next, decoded.objects do
+        for _, option in pairs(decoded.objects) do
             if not option.type then continue end
             if not self.Parser[option.type] then continue end
 
