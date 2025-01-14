@@ -2,7 +2,7 @@
 -- You can suggest changes with a pull request or something
 
 local repo = "https://raw.githubusercontent.com/deividcomsono/Waste/main/"
-local Library = loadstring(readfile("Library.lua"))
+local Library = loadstring(readfile("Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
 local SaveManager = loadstring(game:HttpGet(repo .. "addons/SaveManager.lua"))()
 
