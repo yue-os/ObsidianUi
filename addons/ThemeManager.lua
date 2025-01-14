@@ -99,7 +99,9 @@ local ThemeManager = {} do
         
         local scheme = data[2]
         for idx, val in pairs(customThemeData or scheme) do
-            if idx == "FontFace" then
+            if idx == "VideoLink" then
+                continue
+            elseif idx == "FontFace" then
                 self.Library:SetFont(Enum.Font[val])
 
                 if self.Library.Options[idx] then
