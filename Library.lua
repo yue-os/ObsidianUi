@@ -116,7 +116,7 @@ local Templates = {
 		BorderSizePixel = 0,
 		FontFace = "Font",
 		PlaceholderColor3 = function()
-			local H, S, V = Library.FontColor:ToHSV()
+			local H, S, V = Library.Scheme.FontColor:ToHSV()
 			return Color3.fromHSV(H, S, V / 2)
 		end,
 		Text = "",
@@ -830,7 +830,7 @@ function Library:AddDraggableButton(Text: string, Func)
 	Library:MakeDraggable(Button, Button, true)
 
 	function Table:SetText(NewText: string)
-		local X, Y = Library:GetTextBounds(NewText, Library.Font, 16)
+		local X, Y = Library:GetTextBounds(NewText, Library.Scheme.Font, 16)
 
 		Button.Text = NewText
 		Button.Size = UDim2.fromOffset(X * Library.DPIScale * 2, Y * Library.DPIScale * 2)
@@ -2177,13 +2177,13 @@ do
 					Button.Locked = true
 
 					Button.Base.Text = "Are you sure?"
-					Button.Base.TextColor3 = Library.AccentColor
+					Button.Base.TextColor3 = Library.Scheme.AccentColor
 					Library.Registry[Button.Base].TextColor3 = "AccentColor"
 
 					local Clicked = WaitForEvent(Button.Base.MouseButton1Click, 0.5)
 
 					Button.Base.Text = Button.Text
-					Button.Base.TextColor3 = Library.FontColor
+					Button.Base.TextColor3 = Library.Scheme.FontColor
 					Library.Registry[Button.Base].TextColor3 = "FontColor"
 
 					if Clicked then
@@ -2225,7 +2225,8 @@ do
 			InitEvents(SubButton)
 
 			function SubButton:UpdateColors()
-				SubButton.Base.BackgroundColor3 = SubButton.Disabled and Library.BackgroundColor or Library.MainColor
+				SubButton.Base.BackgroundColor3 = SubButton.Disabled and Library.Scheme.BackgroundColor
+					or Library.Scheme.MainColor
 				SubButton.Base.TextTransparency = SubButton.Disabled and 0.8 or 0
 				SubButton.Stroke.Transparency = SubButton.Disabled and 0.5 or 0
 
@@ -2274,7 +2275,8 @@ do
 		end
 
 		function Button:UpdateColors()
-			Button.Base.BackgroundColor3 = Button.Disabled and Library.BackgroundColor or Library.MainColor
+			Button.Base.BackgroundColor3 = Button.Disabled and Library.Scheme.BackgroundColor
+				or Library.Scheme.MainColor
 			Button.Base.TextTransparency = Button.Disabled and 0.8 or 0
 			Button.Stroke.Transparency = Button.Disabled and 0.5 or 0
 
@@ -2413,7 +2415,7 @@ do
 				Label.TextTransparency = 0.8
 				CheckImage.ImageTransparency = Toggle.Value and 0.8 or 1
 
-				Checkbox.BackgroundColor3 = Library.BackgroundColor
+				Checkbox.BackgroundColor3 = Library.Scheme.BackgroundColor
 				Library.Registry[Checkbox].BackgroundColor3 = "BackgroundColor"
 
 				return
@@ -2426,7 +2428,7 @@ do
 				ImageTransparency = Toggle.Value and 0 or 1,
 			}):Play()
 
-			Checkbox.BackgroundColor3 = Library.MainColor
+			Checkbox.BackgroundColor3 = Library.Scheme.MainColor
 			Library.Registry[Checkbox].BackgroundColor3 = "MainColor"
 		end
 
@@ -2496,7 +2498,7 @@ do
 		end
 
 		if Toggle.Risky then
-			Label.TextColor3 = Library.Red
+			Label.TextColor3 = Library.Scheme.Red
 			Library.Registry[Label].TextColor3 = "Red"
 		end
 
@@ -2750,7 +2752,7 @@ do
 			end
 			DisplayLabel.TextTransparency = Slider.Disabled and 0.8 or 0
 
-			Fill.BackgroundColor3 = Slider.Disabled and Library.OutlineColor or Library.AccentColor
+			Fill.BackgroundColor3 = Slider.Disabled and Library.Scheme.OutlineColor or Library.Scheme.AccentColor
 			Library.Registry[Fill].BackgroundColor3 = Slider.Disabled and "OutlineColor" or "AccentColor"
 		end
 
@@ -3324,7 +3326,7 @@ function Library:SetFont(FontFace)
 		FontFace = Font.fromEnum(FontFace)
 	end
 
-	Library.Font = FontFace
+	Library.Scheme.Font = FontFace
 	Library:UpdateColorsUsingRegistry()
 end
 
@@ -3530,7 +3532,7 @@ function Library:CreateWindow(WindowInfo)
 	Library.CornerRadius = WindowInfo.CornerRadius
 	Library:SetNotifySide(WindowInfo.NotifySide)
 	Library.ShowCustomCursor = WindowInfo.ShowCustomCursor
-	Library.Font = WindowInfo.Font
+	Library.Scheme.Font = WindowInfo.Font
 	Library.ToggleKeybind = WindowInfo.ToggleKeybind
 
 	local MainFrame
@@ -3550,7 +3552,7 @@ function Library:CreateWindow(WindowInfo)
 
 		MainFrame = New("Frame", {
 			BackgroundColor3 = function()
-				return Library:GetBetterColor(Library.BackgroundColor, -1)
+				return Library:GetBetterColor(Library.Scheme.BackgroundColor, -1)
 			end,
 			Name = "Main",
 			Position = WindowInfo.Position,
@@ -3623,7 +3625,7 @@ function Library:CreateWindow(WindowInfo)
 
 		local X = Library:GetTextBounds(
 			WindowInfo.Title,
-			Library.Font,
+			Library.Scheme.Font,
 			20,
 			TitleHolder.AbsoluteSize.X - (WindowInfo.Icon and WindowInfo.IconSize.X.Offset + 6 or 0) - 12
 		)
@@ -3695,7 +3697,7 @@ function Library:CreateWindow(WindowInfo)
 		local BottomBar = New("Frame", {
 			AnchorPoint = Vector2.new(0, 1),
 			BackgroundColor3 = function()
-				return Library:GetBetterColor(Library.BackgroundColor, 4)
+				return Library:GetBetterColor(Library.Scheme.BackgroundColor, 4)
 			end,
 			Position = UDim2.fromScale(0, 1),
 			Size = UDim2.new(1, 0, 0, 20),
@@ -3705,7 +3707,7 @@ function Library:CreateWindow(WindowInfo)
 			local Cover = Library:MakeCover(BottomBar, "Top")
 			Library:AddToRegistry(Cover, {
 				BackgroundColor3 = function()
-					return Library:GetBetterColor(Library.BackgroundColor, 4)
+					return Library:GetBetterColor(Library.Scheme.BackgroundColor, 4)
 				end,
 			})
 		end
@@ -3773,7 +3775,7 @@ function Library:CreateWindow(WindowInfo)
 		Container = New("Frame", {
 			AnchorPoint = Vector2.new(1, 0),
 			BackgroundColor3 = function()
-				return Library:GetBetterColor(Library.BackgroundColor, 1)
+				return Library:GetBetterColor(Library.Scheme.BackgroundColor, 1)
 			end,
 			Name = "Container",
 			Position = UDim2.new(1, 0, 0, 49),
@@ -3982,8 +3984,12 @@ function Library:CreateWindow(WindowInfo)
 			end
 
 			if typeof(Info.Text) == "string" then
-				local _, Y =
-					Library:GetTextBounds(Info.Text, Library.Font, WarningText.TextSize, WarningText.AbsoluteSize.X)
+				local _, Y = Library:GetTextBounds(
+					Info.Text,
+					Library.Scheme.Font,
+					WarningText.TextSize,
+					WarningText.AbsoluteSize.X
+				)
 
 				WarningText.Size = UDim2.new(1, 0, 0, Y)
 				WarningText.Text = Info.Text
@@ -3996,7 +4002,7 @@ function Library:CreateWindow(WindowInfo)
 			if ResizeWarningBox then
 				local _, Y = Library:GetTextBounds(
 					WarningText.Text,
-					Library.Font,
+					Library.Scheme.Font,
 					WarningText.TextSize,
 					WarningText.AbsoluteSize.X
 				)
