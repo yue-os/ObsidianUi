@@ -108,7 +108,7 @@ local ThemeManager = {} do
                     self.Library.Options[idx]:SetValue(val)
                 end
             else
-                self.Library[idx] = Color3.fromHex(val)
+                self.Library.Scheme[idx] = Color3.fromHex(val)
             
                 if self.Library.Options[idx] then
                     self.Library.Options[idx]:SetValueRGB(Color3.fromHex(val))
@@ -123,7 +123,7 @@ local ThemeManager = {} do
         local options = { "FontColor", "MainColor", "AccentColor", "BackgroundColor", "OutlineColor" }
         for i, field in pairs(options) do
             if self.Library.Options and self.Library.Options[field] then
-                self.Library[field] = self.Library.Options[field].Value
+                self.Library.Scheme[field] = self.Library.Options[field].Value
             end
         end
 
@@ -233,11 +233,11 @@ local ThemeManager = {} do
 
     --// GUI \\--
     function ThemeManager:CreateThemeManager(groupbox)
-        groupbox:AddLabel("Background color"):AddColorPicker("BackgroundColor", { Default = self.Library.BackgroundColor })
-        groupbox:AddLabel("Main color"):AddColorPicker("MainColor", { Default = self.Library.MainColor })
-        groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor", { Default = self.Library.AccentColor })
-        groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor", { Default = self.Library.OutlineColor })
-        groupbox:AddLabel("Font color"):AddColorPicker("FontColor", { Default = self.Library.FontColor })
+        groupbox:AddLabel("Background color"):AddColorPicker("BackgroundColor", { Default = self.Library.Scheme.BackgroundColor })
+        groupbox:AddLabel("Main color"):AddColorPicker("MainColor", { Default = self.Library.Scheme.MainColor })
+        groupbox:AddLabel("Accent color"):AddColorPicker("AccentColor", { Default = self.Library.Scheme.AccentColor })
+        groupbox:AddLabel("Outline color"):AddColorPicker("OutlineColor", { Default = self.Library.Scheme.OutlineColor })
+        groupbox:AddLabel("Font color"):AddColorPicker("FontColor", { Default = self.Library.Scheme.FontColor })
         groupbox:AddDropdown("FontFace", {
             Text = "Font Face",
             Default = "Code",
