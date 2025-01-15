@@ -456,7 +456,7 @@ local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 			ThemeProperties[k] = nil
 		elseif Library.Scheme[v] or typeof(v) == "function" then
 			ThemeProperties[k] = v
-			Instance[k] = Library[v] or v()
+			Instance[k] = Library.Scheme[v] or v()
 			continue
 		end
 
