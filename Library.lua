@@ -54,23 +54,25 @@ local Library = {
 	CantDragForced = false,
 
 	Signals = {},
-	UnloadCallbacks = {},
+	UnloadSignals = {},
 
 	MinSize = Vector2.new(480, 360),
 	DPIScale = 1,
 	CornerRadius = 4,
 
 	IsLightTheme = false,
-	BackgroundColor = Color3.fromRGB(15, 15, 15),
-	MainColor = Color3.fromRGB(25, 25, 25),
-	AccentColor = Color3.fromRGB(125, 85, 255),
-	OutlineColor = Color3.fromRGB(40, 40, 40),
-	FontColor = Color3.new(1, 1, 1),
-	Font = Font.fromEnum(Enum.Font.Code),
+	Scheme = {
+		BackgroundColor = Color3.fromRGB(15, 15, 15),
+		MainColor = Color3.fromRGB(25, 25, 25),
+		AccentColor = Color3.fromRGB(125, 85, 255),
+		OutlineColor = Color3.fromRGB(40, 40, 40),
+		FontColor = Color3.new(1, 1, 1),
+		Font = Font.fromEnum(Enum.Font.Code),
 
-	Red = Color3.fromRGB(255, 50, 50),
-	Dark = Color3.new(0, 0, 0),
-	White = Color3.new(1, 1, 1),
+		Red = Color3.fromRGB(255, 50, 50),
+		Dark = Color3.new(0, 0, 0),
+		White = Color3.new(1, 1, 1),
+	},
 
 	Registry = {},
 	DPIRegistry = {},
@@ -452,7 +454,7 @@ local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 			continue
 		elseif ThemeProperties[k] then
 			ThemeProperties[k] = nil
-		elseif (Library[v] and typeof(Library[v]) ~= "function") or typeof(v) == "function" then
+		elseif Library.Scheme[v] or typeof(v) == "function" then
 			ThemeProperties[k] = v
 			Instance[k] = Library[v] or v()
 			continue
@@ -1153,7 +1155,7 @@ function Library:AddTooltip(InfoStr: string, DisabledInfoStr: string, HoverInsta
 end
 
 function Library:OnUnload(Callback)
-	table.insert(Library.UnloadCallbacks, Callback)
+	table.insert(Library.UnloadSignals, Callback)
 end
 
 function Library:Unload()
@@ -1162,7 +1164,7 @@ function Library:Unload()
 		Connection:Disconnect()
 	end
 
-	for _, Callback in pairs(Library.UnloadCallbacks) do
+	for _, Callback in pairs(Library.UnloadSignals) do
 		Library:SafeCallback(Callback)
 	end
 
@@ -3106,7 +3108,7 @@ do
 
 			local Count = 0
 			for _, Value in pairs(Values) do
-				if SearchBox and not tostring(Value):lower():match(SearchBox.Text:lower()) then
+				if SearchBox and not Value:lower():match(SearchBox.Text:lower()) then
 					continue
 				end
 
