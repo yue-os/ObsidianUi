@@ -390,6 +390,7 @@ function Library:SetDPIScale(DPIScale: number)
 			continue
 		end
 
+		Tab:Resize(true)
 		for _, Groupbox in pairs(Tab.Groupboxes) do
 			Groupbox:Resize()
 		end
