@@ -343,7 +343,7 @@ function Library:UpdateColorsUsingRegistry()
 	for Instance, Properties in pairs(Library.Registry) do
 		for Property, ColorIdx in pairs(Properties) do
 			if typeof(ColorIdx) == "string" then
-				Instance[Property] = Library[ColorIdx]
+				Instance[Property] = Library.Scheme[ColorIdx]
 			elseif typeof(ColorIdx) == "function" then
 				Instance[Property] = ColorIdx()
 			end
