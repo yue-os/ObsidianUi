@@ -501,7 +501,7 @@ end
 --// Main Instances \\-
 local function ParentUI(UI: Instance)
 	if not pcall(function()
-		UI.Parent = gethui and gethui() or CoreGui
+		UI.Parent = CoreGui
 	end) then
 		UI.Parent = Library.LocalPlayer:WaitForChild("PlayerGui")
 	end
