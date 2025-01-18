@@ -108,6 +108,25 @@ end)
 -- This should print to the console: "My toggle state changed! New value: false"
 Toggles.MyToggle:SetValue(false)
 
+LeftGroupBox:AddCheckbox("MyCheckbox", {
+	Text = "This is a checkbox",
+	Tooltip = "This is a tooltip", -- Information shown when you hover over the toggle
+	DisabledTooltip = "I am disabled!", -- Information shown when you hover over the toggle while it's disabled
+
+	Default = true, -- Default value (true / false)
+	Disabled = false, -- Will disable the toggle (true / false)
+	Visible = true, -- Will make the toggle invisible (true / false)
+	Risky = false, -- Makes the text red (the color can be changed using Library.RiskColor) (Default value = false)
+
+	Callback = function(Value)
+		print("[cb] MyCheckbox changed to:", Value)
+	end,
+})
+
+Toggles.MyCheckbox:OnChanged(function()
+	print("MyCheckbox changed to:", Toggles.MyCheckbox.Value)
+end)
+
 -- 1/15/23
 -- Deprecated old way of creating buttons in favor of using a table
 -- Added DoubleClick button functionality
