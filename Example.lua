@@ -68,7 +68,7 @@ LeftGroupBox:AddToggle("MyToggle", {
 	Default = true, -- Default value (true / false)
 	Disabled = false, -- Will disable the toggle (true / false)
 	Visible = true, -- Will make the toggle invisible (true / false)
-	Risky = false, -- Makes the text red (the color can be changed using Library.RiskColor) (Default value = false)
+	Risky = false, -- Makes the text red (the color can be changed using Library.Scheme.Red) (Default value = false)
 
 	Callback = function(Value)
 		print("[cb] MyToggle changed to:", Value)
@@ -116,7 +116,7 @@ LeftGroupBox:AddCheckbox("MyCheckbox", {
 	Default = true, -- Default value (true / false)
 	Disabled = false, -- Will disable the toggle (true / false)
 	Visible = true, -- Will make the toggle invisible (true / false)
-	Risky = false, -- Makes the text red (the color can be changed using Library.RiskColor) (Default value = false)
+	Risky = false, -- Makes the text red (the color can be changed using Library.Scheme.Red) (Default value = false)
 
 	Callback = function(Value)
 		print("[cb] MyCheckbox changed to:", Value)
@@ -155,6 +155,7 @@ local MyButton = LeftGroupBox:AddButton({
 
 	Disabled = false, -- Will disable the button (true / false)
 	Visible = true, -- Will make the button invisible (true / false)
+	Risky = false, -- Makes the text red (the color can be changed using Library.Scheme.Red) (Default value = false)
 })
 
 local MyButton2 = MyButton:AddButton({
