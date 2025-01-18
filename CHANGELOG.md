@@ -4,5 +4,5 @@
 + Added Risky to Buttons
 + Changed Toggle's Checkbox to Switch (Checkbox is still possible with AddCheckbox)
 + Dropdown disabled values moved to the bottom
-+ Fixed DPI Scale issues (Title Wrapping and Dropdown Menu Size)
++ Fixed DPI Scale issues (Title Wrapping, Slider Fill Bar and and Dropdown Menu Size)
 ```
