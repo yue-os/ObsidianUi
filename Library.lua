@@ -371,7 +371,7 @@ end
 
 function Library:SetDPIScale(DPIScale: number)
 	Library.DPIScale = DPIScale / 100
-	Library.MinSize = (Library.IsMobile and Vector2.new(480, 240) or Vector2.new(480, 360)) * Library.DPIScale
+	Library.MinSize *= Library.DPIScale
 
 	for Instance, Properties in pairs(Library.DPIRegistry) do
 		for Property, Value in pairs(Properties) do
@@ -3790,9 +3790,13 @@ function Library:CreateWindow(WindowInfo)
 	WindowInfo = Library:Validate(WindowInfo, Templates.Window)
 	local ViewportSize: Vector2 = workspace.CurrentCamera.ViewportSize
 
+	local MaxX = ViewportSize.X - 64
+	local MaxY = ViewportSize.Y - 64
+
+	Library.MinSize = Vector2.new(math.min(Library.MinSize.X, MaxX), math.min(Library.MinSize.Y, MaxY))
 	WindowInfo.Size = UDim2.fromOffset(
-		math.clamp(WindowInfo.Size.X.Offset, 0, ViewportSize.X - 32),
-		math.clamp(WindowInfo.Size.Y.Offset, 0, ViewportSize.Y - 32)
+		math.clamp(WindowInfo.Size.X.Offset, Library.MinSize.X, MaxX),
+		math.clamp(WindowInfo.Size.Y.Offset, Library.MinSize.Y, MaxY)
 	)
 	if typeof(WindowInfo.Font) == "EnumItem" then
 		WindowInfo.Font = Font.fromEnum(WindowInfo.Font)
