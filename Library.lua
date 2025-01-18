@@ -48,6 +48,7 @@ local Library = {
 
 	NotifySide = "Right",
 	ShowCustomCursor = true,
+	ForceCheckbox = false,
 	ShowToggleFrameInKeybinds = true,
 	NotifyOnError = false,
 
@@ -2568,6 +2569,10 @@ do
 	end
 
 	function Funcs:AddToggle(Idx, Info)
+		if Library.ForceCheckbox then
+			return Funcs.AddCheckbox(self, Idx, Info)
+		end
+
 		Info = Library:Validate(Info, Templates.Toggle)
 
 		local Groupbox = self
@@ -3705,7 +3710,7 @@ function Library:Notify(...)
 				Title.TextSize,
 				NotificationArea.AbsoluteSize.X - (24 * Library.DPIScale)
 			)
-			Title.Size = UDim2.fromOffset(X, Y)
+			Title.Size = UDim2.fromOffset(math.ceil(X), Y)
 			TitleX = X
 		end
 		if Desc then
@@ -3715,7 +3720,7 @@ function Library:Notify(...)
 				Desc.TextSize,
 				NotificationArea.AbsoluteSize.X - (24 * Library.DPIScale)
 			)
-			Desc.Size = UDim2.fromOffset(X, Y)
+			Desc.Size = UDim2.fromOffset(math.ceil(X), Y)
 			DescX = X
 		end
 
