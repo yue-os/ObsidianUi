@@ -2657,6 +2657,8 @@ do
 		end
 
 		function Toggle:Display()
+			local Offset = Toggle.Value and 1 or 0
+
 			Switch.BackgroundTransparency = Toggle.Disabled and 0.75 or 0
 			SwitchStroke.Transparency = Toggle.Disabled and 0.75 or 0
 
@@ -2668,6 +2670,8 @@ do
 
 			if Toggle.Disabled then
 				Label.TextTransparency = 0.8
+				Ball.AnchorPoint = Vector2.new(Offset, 0)
+				Ball.Position = UDim2.fromScale(Offset, 0)
 
 				Ball.BackgroundColor3 = Library:GetDarkerColor(Library.Scheme.FontColor)
 				Library.Registry[Ball].BackgroundColor3 = function()
@@ -2677,7 +2681,6 @@ do
 				return
 			end
 
-			local Offset = Toggle.Value and 1 or 0
 			TweenService:Create(Label, Library.TweenInfo, {
 				TextTransparency = Toggle.Value and 0 or 0.4,
 			}):Play()
