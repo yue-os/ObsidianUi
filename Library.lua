@@ -289,6 +289,13 @@ local function GetTableSize(Table: { [any]: any })
 
 	return Size
 end
+local function StopTween(Tween: TweenBase)
+	if not (Tween and Tween.PlaybackState == Enum.PlaybackState.Playing) then
+		return
+	end
+
+	Tween:Cancel()
+end
 
 local function GetPlayers(ExcludeLocalPlayer: boolean?)
 	local PlayerList = Players:GetPlayers()
@@ -377,14 +384,6 @@ function Library:SetDPIScale(DPIScale: number)
 		end
 	end
 
-	for _, Option in pairs(Options) do
-		if Option.Type == "Dropdown" then
-			Option:RecalculateListSize()
-		elseif Option.Type == "KeyPicker" then
-			Option:Update()
-		end
-	end
-
 	for _, Tab in pairs(Library.Tabs) do
 		if Tab.IsKeyTab then
 			continue
@@ -398,6 +397,14 @@ function Library:SetDPIScale(DPIScale: number)
 			for _, SubTab in pairs(Tabbox.Tabs) do
 				SubTab:Resize()
 			end
+		end
+	end
+
+	for _, Option in pairs(Options) do
+		if Option.Type == "Dropdown" then
+			Option:RecalculateListSize()
+		elseif Option.Type == "KeyPicker" then
+			Option:Update()
 		end
 	end
 
@@ -2096,6 +2103,7 @@ do
 				Info.Tooltip = Params.Tooltip
 				Info.DisabledTooltip = Params.DisabledTooltip
 
+				Info.Risky = Params.Risky or false
 				Info.Disabled = Params.Disabled or false
 				Info.Visible = Params.Visible or true
 				Info.Idx = typeof(Second) == "table" and First or nil
@@ -2107,6 +2115,7 @@ do
 				Info.Tooltip = nil
 				Info.DisabledTooltip = nil
 
+				Info.Risky = false
 				Info.Disabled = false
 				Info.Visible = true
 				Info.Idx = select(3, ...) or nil
@@ -2128,9 +2137,11 @@ do
 			DisabledTooltip = Info.DisabledTooltip,
 			TooltipTable = nil,
 
+			Risky = Info.Risky,
 			Disabled = Info.Disabled,
 			Visible = Info.Visible,
 
+			Tween = nil,
 			Type = "Button",
 		}
 
@@ -2154,7 +2165,7 @@ do
 				Size = UDim2.fromScale(1, 1),
 				Text = Button.Text,
 				TextSize = 14,
-				TextTransparency = 0.5,
+				TextTransparency = 0.4,
 				Visible = Button.Visible,
 				Parent = Holder,
 			})
@@ -2169,6 +2180,27 @@ do
 		end
 
 		local function InitEvents(Button)
+			Button.Base.MouseEnter:Connect(function()
+				if Button.Disabled then
+					return
+				end
+
+				Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, {
+					TextTransparency = 0,
+				})
+				Button.Tween:Play()
+			end)
+			Button.Base.MouseLeave:Connect(function()
+				if Button.Disabled then
+					return
+				end
+
+				Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, {
+					TextTransparency = 0.4,
+				})
+				Button.Tween:Play()
+			end)
+
 			Button.Base.MouseButton1Click:Connect(function()
 				if Button.Disabled or Button.Locked then
 					return
@@ -2184,8 +2216,8 @@ do
 					local Clicked = WaitForEvent(Button.Base.MouseButton1Click, 0.5)
 
 					Button.Base.Text = Button.Text
-					Button.Base.TextColor3 = Library.Scheme.FontColor
-					Library.Registry[Button.Base].TextColor3 = "FontColor"
+					Button.Base.TextColor3 = Button.Risky and Library.Scheme.Red or Library.Scheme.FontColor
+					Library.Registry[Button.Base].TextColor3 = Button.Risky and "Red" or "FontColor"
 
 					if Clicked then
 						Library:SafeCallback(Button.Func)
@@ -2215,9 +2247,11 @@ do
 				DisabledTooltip = Info.DisabledTooltip,
 				TooltipTable = nil,
 
+				Risky = Info.Risky,
 				Disabled = Info.Disabled,
 				Visible = Info.Visible,
 
+				Tween = nil,
 				Type = "SubButton",
 			}
 
@@ -2226,9 +2260,11 @@ do
 			InitEvents(SubButton)
 
 			function SubButton:UpdateColors()
+				StopTween(SubButton.Tween)
+
 				SubButton.Base.BackgroundColor3 = SubButton.Disabled and Library.Scheme.BackgroundColor
 					or Library.Scheme.MainColor
-				SubButton.Base.TextTransparency = SubButton.Disabled and 0.8 or 0
+				SubButton.Base.TextTransparency = SubButton.Disabled and 0.8 or 0.4
 				SubButton.Stroke.Transparency = SubButton.Disabled and 0.5 or 0
 
 				Library.Registry[SubButton.Base].BackgroundColor3 = SubButton.Disabled and "BackgroundColor"
@@ -2264,6 +2300,11 @@ do
 				SubButton.TooltipTable.Disabled = SubButton.Disabled
 			end
 
+			if SubButton.Risky then
+				SubButton.Base.TextColor3 = Library.Scheme.Red
+				Library.Registry[SubButton.Base].TextColor3 = "Red"
+			end
+
 			SubButton:UpdateColors()
 
 			if Info.Idx then
@@ -2276,9 +2317,11 @@ do
 		end
 
 		function Button:UpdateColors()
+			StopTween(Button.Tween)
+
 			Button.Base.BackgroundColor3 = Button.Disabled and Library.Scheme.BackgroundColor
 				or Library.Scheme.MainColor
-			Button.Base.TextTransparency = Button.Disabled and 0.8 or 0
+			Button.Base.TextTransparency = Button.Disabled and 0.8 or 0.4
 			Button.Stroke.Transparency = Button.Disabled and 0.5 or 0
 
 			Library.Registry[Button.Base].BackgroundColor3 = Button.Disabled and "BackgroundColor" or "MainColor"
@@ -2312,6 +2355,11 @@ do
 			Button.TooltipTable.Disabled = Button.Disabled
 		end
 
+		if Button.Risky then
+			Button.Base.TextColor3 = Library.Scheme.Red
+			Library.Registry[Button.Base].TextColor3 = "Red"
+		end
+
 		Button:UpdateColors()
 		Groupbox:Resize()
 
@@ -2327,7 +2375,7 @@ do
 		return Button
 	end
 
-	function Funcs:AddToggle(Idx, Info)
+	function Funcs:AddCheckbox(Idx, Info)
 		Info = Library:Validate(Info, Templates.Toggle)
 
 		local Groupbox = self
@@ -2367,6 +2415,7 @@ do
 			Size = UDim2.new(1, -26, 1, 0),
 			Text = Toggle.Text,
 			TextSize = 14,
+			TextTransparency = 0.4,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Parent = Button,
 		})
@@ -2423,7 +2472,7 @@ do
 			end
 
 			TweenService:Create(Label, Library.TweenInfo, {
-				TextTransparency = Toggle.Value and 0 or 0.5,
+				TextTransparency = Toggle.Value and 0 or 0.4,
 			}):Play()
 			TweenService:Create(CheckImage, Library.TweenInfo, {
 				ImageTransparency = Toggle.Value and 0 or 1,
@@ -2431,6 +2480,214 @@ do
 
 			Checkbox.BackgroundColor3 = Library.Scheme.MainColor
 			Library.Registry[Checkbox].BackgroundColor3 = "MainColor"
+		end
+
+		function Toggle:OnChanged(Func)
+			Toggle.Changed = Func
+		end
+
+		function Toggle:SetValue(Value)
+			if Toggle.Disabled then
+				return
+			end
+
+			Toggle.Value = Value
+			Toggle:Display()
+
+			for _, Addon in pairs(Toggle.Addons) do
+				if Addon.Type == "KeyPicker" and Addon.SyncToggleState then
+					Addon.Toggled = Toggle.Value
+					Addon:Update()
+				end
+			end
+
+			Library:SafeCallback(Toggle.Callback, Toggle.Value)
+			Library:SafeCallback(Toggle.Changed, Toggle.Value)
+		end
+
+		function Toggle:SetDisabled(Disabled: boolean)
+			Toggle.Disabled = Disabled
+
+			if Toggle.TooltipTable then
+				Toggle.TooltipTable.Disabled = Toggle.Disabled
+			end
+
+			for _, Addon in pairs(Toggle.Addons) do
+				if Addon.Type == "KeyPicker" and Addon.SyncToggleState then
+					Addon:Update()
+				end
+			end
+
+			Button.Active = not Toggle.Disabled
+			Toggle:Display()
+		end
+
+		function Toggle:SetVisible(Visible: boolean)
+			Toggle.Visible = Visible
+
+			Button.Visible = Toggle.Visible
+			Groupbox:Resize()
+		end
+
+		function Toggle:SetText(Text: string)
+			Toggle.Text = Text
+			Label.Text = Text
+		end
+
+		Button.MouseButton1Click:Connect(function()
+			if Toggle.Disabled then
+				return
+			end
+
+			Toggle:SetValue(not Toggle.Value)
+		end)
+
+		if typeof(Toggle.Tooltip) == "string" or typeof(Toggle.DisabledTooltip) == "string" then
+			Toggle.TooltipTable = Library:AddTooltip(Toggle.Tooltip, Toggle.DisabledTooltip, Button)
+			Toggle.TooltipTable.Disabled = Toggle.Disabled
+		end
+
+		if Toggle.Risky then
+			Label.TextColor3 = Library.Scheme.Red
+			Library.Registry[Label].TextColor3 = "Red"
+		end
+
+		Toggle:Display()
+		Groupbox:Resize()
+
+		Toggle.TextLabel = Label
+		Toggle.Container = Container
+		setmetatable(Toggle, BaseAddons)
+
+		Toggle.Holder = Button
+		table.insert(Groupbox.Elements, Toggle)
+
+		Toggles[Idx] = Toggle
+
+		return Toggle
+	end
+
+	function Funcs:AddToggle(Idx, Info)
+		Info = Library:Validate(Info, Templates.Toggle)
+
+		local Groupbox = self
+		local Container = Groupbox.Container
+
+		local Toggle = {
+			Text = Info.Text,
+			Value = Info.Default,
+
+			Tooltip = Info.Tooltip,
+			DisabledTooltip = Info.DisabledTooltip,
+			TooltipTable = nil,
+
+			Callback = Info.Callback,
+			Changed = Info.Changed,
+
+			Risky = Info.Risky,
+			Disabled = Info.Disabled,
+			Visible = Info.Visible,
+			Addons = {},
+
+			Type = "Toggle",
+		}
+
+		local Button = New("TextButton", {
+			Active = not Toggle.Disabled,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 18),
+			Text = "",
+			Visible = Toggle.Visible,
+			Parent = Container,
+		})
+
+		local Label = New("TextLabel", {
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, -40, 1, 0),
+			Text = Toggle.Text,
+			TextSize = 14,
+			TextTransparency = 0.4,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Parent = Button,
+		})
+
+		New("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			Padding = UDim.new(0, 6),
+			Parent = Label,
+		})
+
+		local Switch = New("Frame", {
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundColor3 = "MainColor",
+			Position = UDim2.fromScale(1, 0),
+			Size = UDim2.fromOffset(32, 18),
+			Parent = Button,
+		})
+		New("UICorner", {
+			CornerRadius = UDim.new(1, 0),
+			Parent = Switch,
+		})
+		New("UIPadding", {
+			PaddingBottom = UDim.new(0, 2),
+			PaddingLeft = UDim.new(0, 2),
+			PaddingRight = UDim.new(0, 2),
+			PaddingTop = UDim.new(0, 2),
+			Parent = Switch,
+		})
+		local SwitchStroke = New("UIStroke", {
+			Color = "OutlineColor",
+			Parent = Switch,
+		})
+
+		local Ball = New("Frame", {
+			BackgroundColor3 = "FontColor",
+			Size = UDim2.fromScale(1, 1),
+			SizeConstraint = Enum.SizeConstraint.RelativeYY,
+			Parent = Switch,
+		})
+		New("UICorner", {
+			CornerRadius = UDim.new(1, 0),
+			Parent = Ball,
+		})
+
+		function Toggle:UpdateColors()
+			Toggle:Display()
+		end
+
+		function Toggle:Display()
+			Switch.BackgroundTransparency = Toggle.Disabled and 0.75 or 0
+			SwitchStroke.Transparency = Toggle.Disabled and 0.75 or 0
+
+			Switch.BackgroundColor3 = Toggle.Value and Library.Scheme.AccentColor or Library.Scheme.MainColor
+			SwitchStroke.Color = Toggle.Value and Library.Scheme.AccentColor or Library.Scheme.OutlineColor
+
+			Library.Registry[Switch].BackgroundColor3 = Toggle.Value and "AccentColor" or "MainColor"
+			Library.Registry[SwitchStroke].Color = Toggle.Value and "AccentColor" or "OutlineColor"
+
+			if Toggle.Disabled then
+				Label.TextTransparency = 0.8
+
+				Ball.BackgroundColor3 = Library:GetDarkerColor(Library.Scheme.FontColor)
+				Library.Registry[Ball].BackgroundColor3 = function()
+					return Library:GetDarkerColor(Library.Scheme.FontColor)
+				end
+
+				return
+			end
+
+			local Offset = Toggle.Value and 1 or 0
+			TweenService:Create(Label, Library.TweenInfo, {
+				TextTransparency = Toggle.Value and 0 or 0.4,
+			}):Play()
+			TweenService:Create(Ball, Library.TweenInfo, {
+				AnchorPoint = Vector2.new(Offset, 0),
+				Position = UDim2.fromScale(Offset, 0),
+			}):Play()
+
+			Ball.BackgroundColor3 = Library.Scheme.FontColor
+			Library.Registry[Ball].BackgroundColor3 = "FontColor"
 		end
 
 		function Toggle:OnChanged(Func)
@@ -2745,6 +3002,9 @@ do
 			BackgroundColor3 = "AccentColor",
 			Size = UDim2.fromScale(0.5, 1),
 			Parent = Bar,
+		})
+		Library:UpdateDPI(Fill, {
+			Size = false,
 		})
 
 		function Slider:UpdateColors()
@@ -3115,14 +3375,14 @@ do
 					continue
 				end
 
+				Count += 1
 				local IsDisabled = table.find(DisabledValues, Value)
 				local Table = {}
-
-				Count += 1
 
 				local Button = New("TextButton", {
 					BackgroundColor3 = "MainColor",
 					BackgroundTransparency = 1,
+					LayoutOrder = IsDisabled and 1 or 0,
 					Size = UDim2.new(1, 0, 0, 21),
 					Text = tostring(Value),
 					TextSize = 14,
@@ -3151,7 +3411,7 @@ do
 					end
 
 					Button.BackgroundTransparency = Selected and 0 or 1
-					Button.TextTransparency = Selected and 0 or (IsDisabled and 0.8 or 0.5)
+					Button.TextTransparency = IsDisabled and 0.8 or Selected and 0 or 0.5
 				end
 
 				if not IsDisabled then
@@ -3632,10 +3892,9 @@ function Library:CreateWindow(WindowInfo)
 		)
 		New("TextLabel", {
 			BackgroundTransparency = 1,
-			Size = UDim2.new(0, X, 0, 1),
+			Size = UDim2.new(0, X, 1, 0),
 			Text = WindowInfo.Title,
 			TextSize = 20,
-			TextWrapped = true,
 			Parent = TitleHolder,
 		})
 
