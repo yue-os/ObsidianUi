@@ -3236,7 +3236,7 @@ do
 			end
 
 			MenuTable:Close()
-			Display.Active = not Display.Disabled
+			Display.Active = not Dropdown.Disabled
 			Dropdown:UpdateColors()
 		end
 
