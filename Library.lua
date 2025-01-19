@@ -246,7 +246,6 @@ local function ApplyDPIScale(Dimension, ExtraOffset)
 		)
 	end
 
-	print(Dimension, ExtraOffset)
 	return UDim2.new(
 		Dimension.X.Scale,
 		Dimension.X.Offset * Library.DPIScale,
@@ -4299,8 +4298,6 @@ function Library:CreateWindow(WindowInfo)
 		end
 
 		function Tab:Resize(ResizeWarningBox: boolean?)
-			print("called", Name)
-
 			if ResizeWarningBox then
 				local _, Y = Library:GetTextBounds(
 					WarningText.Text,
