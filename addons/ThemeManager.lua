@@ -331,8 +331,8 @@ local ThemeManager = {} do
         self.Library.Options.OutlineColor:OnChanged(UpdateTheme)
         self.Library.Options.FontColor:OnChanged(UpdateTheme)
         self.Library.Options.FontFace:OnChanged(function(Value)
-            Library:SetFont(Enum.Font[Value])
-            Library:UpdateColorsUsingRegistry()
+            self.Library:SetFont(Enum.Font[Value])
+            self.Library:UpdateColorsUsingRegistry()
         end)
     end
 
