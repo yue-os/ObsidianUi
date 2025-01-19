@@ -325,8 +325,10 @@ local function GetTeams()
 end
 
 function Library:UpdateKeybindFrame()
-	if not Library.KeybindFrame then return end
-	
+	if not Library.KeybindFrame then
+		return
+	end
+
 	local XSize = 0
 	for _, KeybindToggle in pairs(Library.KeybindToggles) do
 		if not KeybindToggle.Holder.Visible then
@@ -338,7 +340,7 @@ function Library:UpdateKeybindFrame()
 			XSize = FullSize
 		end
 	end
-	
+
 	Library.KeybindFrame.Size = UDim2.fromOffset(XSize + 18 * Library.DPIScale, 0)
 end
 
@@ -459,10 +461,12 @@ end
 local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 	local ThemeProperties = Library.Registry[Instance] or {}
 	local DPIProperties = Library.DPIRegistry[Instance] or {}
+
+	local DPIExclude = DPIProperties["DPIExclude"] or Table["DPIExclude"] or {}
 	local DPIOffset = DPIProperties["DPIOffset"] or Table["DPIOffset"] or {}
 
 	for k, v in pairs(Table) do
-		if k == "DPIOffset" then
+		if k == "DPIExclude" or k == "DPIOffset" then
 			continue
 		elseif ThemeProperties[k] then
 			ThemeProperties[k] = nil
@@ -472,12 +476,14 @@ local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 			continue
 		end
 
-		if k == "Position" or k == "Size" or k:match("Padding") then
-			DPIProperties[k] = v
-			v = ApplyDPIScale(v, DPIOffset[k])
-		elseif k == "TextSize" then
-			DPIProperties[k] = v
-			v = ApplyTextScale(v)
+		if not DPIExclude[k] then
+			if k == "Position" or k == "Size" or k:match("Padding") then
+				DPIProperties[k] = v
+				v = ApplyDPIScale(v, DPIOffset[k])
+			elseif k == "TextSize" then
+				DPIProperties[k] = v
+				v = ApplyTextScale(v)
+			end
 		end
 
 		Instance[k] = v
@@ -487,6 +493,7 @@ local function FillInstance(Table: { [string]: any }, Instance: GuiObject)
 		Library.Registry[Instance] = ThemeProperties
 	end
 	if GetTableSize(DPIProperties) > 0 then
+		DPIProperties["DPIExclude"] = DPIExclude
 		DPIProperties["DPIOffset"] = DPIOffset
 		Library.DPIRegistry[Instance] = DPIProperties
 	end
@@ -825,15 +832,16 @@ function Library:AddDraggableButton(Text: string, Func)
 		TextSize = 16,
 		ZIndex = 10,
 		Parent = ScreenGui,
+
+		DPIExclude = {
+			Position = true,
+		},
 	})
 	New("UICorner", {
 		CornerRadius = UDim.new(0, Library.CornerRadius - 1),
 		Parent = Button,
 	})
 	Library:MakeOutline(Button, Library.CornerRadius, 9)
-	Library:UpdateDPI(Button, {
-		Position = false,
-	})
 
 	Table.Button = Button
 	Button.MouseButton1Click:Connect(function()
@@ -942,6 +950,10 @@ function Library:AddContextMenu(
 			Visible = false,
 			ZIndex = 10,
 			Parent = ScreenGui,
+
+			DPIExclude = {
+				Position = true,
+			},
 		})
 	else
 		Menu = New("Frame", {
@@ -952,11 +964,12 @@ function Library:AddContextMenu(
 			Visible = false,
 			ZIndex = 10,
 			Parent = ScreenGui,
+
+			DPIExclude = {
+				Position = true,
+			},
 		})
 	end
-	Library:UpdateDPI(Menu, {
-		Position = false,
-	})
 
 	local Table = {
 		Active = false,
@@ -1248,9 +1261,10 @@ do
 				TextSize = 14,
 				TextTransparency = 0.5,
 				Parent = Holder,
-			})
-			Library:UpdateDPI(Label, {
-				Size = false,
+
+				DPIExclude = {
+					Size = true,
+				},
 			})
 
 			local Checkbox = New("Frame", {
@@ -3013,9 +3027,10 @@ do
 			BackgroundColor3 = "AccentColor",
 			Size = UDim2.fromScale(0.5, 1),
 			Parent = Bar,
-		})
-		Library:UpdateDPI(Fill, {
-			Size = false,
+
+			DPIExclude = {
+				Size = true,
+			},
 		})
 
 		function Slider:UpdateColors()
@@ -3637,9 +3652,10 @@ function Library:Notify(...)
 		Size = UDim2.fromScale(1, 0),
 		Visible = false,
 		Parent = NotificationArea,
-	})
-	Library:UpdateDPI(FakeBackground, {
-		Size = false,
+
+		DPIExclude = {
+			Size = true,
+		},
 	})
 
 	local Background = Library:MakeOutline(FakeBackground, Library.CornerRadius, 5)
@@ -3686,9 +3702,10 @@ function Library:Notify(...)
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
 			Parent = Holder,
-		})
-		Library:UpdateDPI(Title, {
-			Size = false,
+
+			DPIExclude = {
+				Size = true,
+			},
 		})
 	end
 	if Data.Description then
@@ -3699,9 +3716,10 @@ function Library:Notify(...)
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
 			Parent = Holder,
-		})
-		Library:UpdateDPI(Desc, {
-			Size = false,
+
+			DPIExclude = {
+				Size = true,
+			},
 		})
 	end
 
@@ -3835,6 +3853,10 @@ function Library:CreateWindow(WindowInfo)
 			Size = WindowInfo.Size,
 			Visible = false,
 			Parent = ScreenGui,
+
+			DPIExclude = {
+				Position = true,
+			},
 		})
 		New("UICorner", {
 			CornerRadius = UDim.new(0, WindowInfo.CornerRadius - 1),
@@ -3860,9 +3882,6 @@ function Library:CreateWindow(WindowInfo)
 				Library:MakeLine(MainFrame, Info)
 			end
 			Library:MakeOutline(MainFrame, WindowInfo.CornerRadius, 0)
-			Library:UpdateDPI(MainFrame, {
-				Position = false,
-			})
 		end
 
 		if WindowInfo.Center then
@@ -4138,7 +4157,6 @@ function Library:CreateWindow(WindowInfo)
 				BackgroundTransparency = 1,
 				CanvasSize = UDim2.fromScale(0, 0),
 				ScrollBarThickness = 0,
-				Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0),
 				Parent = TabContainer,
 			})
 			New("UIListLayout", {
@@ -4156,6 +4174,9 @@ function Library:CreateWindow(WindowInfo)
 					LayoutOrder = 1,
 					Parent = TabLeft,
 				})
+
+				TabLeft.Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0)
+				Library:UpdateDPI(TabLeft, { Size = TabLeft.Size })
 			end
 
 			TabRight = New("ScrollingFrame", {
@@ -4165,7 +4186,6 @@ function Library:CreateWindow(WindowInfo)
 				CanvasSize = UDim2.fromScale(0, 0),
 				Position = UDim2.fromScale(1, 0),
 				ScrollBarThickness = 0,
-				Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0),
 				Parent = TabContainer,
 			})
 			New("UIListLayout", {
@@ -4183,6 +4203,9 @@ function Library:CreateWindow(WindowInfo)
 					LayoutOrder = 1,
 					Parent = TabRight,
 				})
+
+				TabRight.Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0)
+				Library:UpdateDPI(TabRight, { Size = TabRight.Size })
 			end
 
 			WarningBox = New("Frame", {
@@ -4274,6 +4297,8 @@ function Library:CreateWindow(WindowInfo)
 		end
 
 		function Tab:Resize(ResizeWarningBox: boolean?)
+			print("called", Name)
+
 			if ResizeWarningBox then
 				local _, Y = Library:GetTextBounds(
 					WarningText.Text,
