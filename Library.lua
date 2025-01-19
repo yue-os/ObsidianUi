@@ -325,6 +325,8 @@ local function GetTeams()
 end
 
 function Library:UpdateKeybindFrame()
+	if not Library.KeybindFrame then return end
+	
 	local XSize = 0
 	for _, KeybindToggle in pairs(Library.KeybindToggles) do
 		if not KeybindToggle.Holder.Visible then
@@ -336,6 +338,7 @@ function Library:UpdateKeybindFrame()
 			XSize = FullSize
 		end
 	end
+	
 	Library.KeybindFrame.Size = UDim2.fromOffset(XSize + 18 * Library.DPIScale, 0)
 end
 
