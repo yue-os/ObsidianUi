@@ -4,6 +4,7 @@ end)
 local getgenv = getgenv or function()
 	return {}
 end
+local setclipboard = setclipboard or nil
 
 local CoreGui: CoreGui = cloneref(game:GetService("CoreGui"))
 local Players: Players = cloneref(game:GetService("Players"))
