@@ -10,6 +10,13 @@ local TextService: TextService = cloneref(game:GetService("TextService"))
 local Teams: Teams = cloneref(game:GetService("Teams"))
 local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 
+local genvTable = {}
+local getgenv = getgenv or function()
+	return genvTable
+end
+
+local setclipboard = setclipboard or function() end
+
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
