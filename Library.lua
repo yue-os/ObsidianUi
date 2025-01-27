@@ -3811,6 +3811,12 @@ end
 function Library:CreateWindow(WindowInfo)
 	WindowInfo = Library:Validate(WindowInfo, Templates.Window)
 	local ViewportSize: Vector2 = workspace.CurrentCamera.ViewportSize
+	if RunService:IsStudio() and ViewportSize.X <= 5 and ViewportSize.Y <= 5 then
+		repeat
+			ViewportSize = workspace.CurrentCamera.ViewportSize
+			task.wait()
+		until ViewportSize.X > 5 and ViewportSize.Y > 5
+	end
 
 	local MaxX = ViewportSize.X - 64
 	local MaxY = ViewportSize.Y - 64
