@@ -84,7 +84,7 @@ local Library = {
 	DPIRegistry = {},
 }
 
-if RunService:IsStudio() then
+if RunService:IsStudio() then 
 	if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then
 		Library.IsMobile = true
 		Library.MinSize = Vector2.new(480, 240)
