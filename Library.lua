@@ -15,13 +15,6 @@ local TextService: TextService = cloneref(game:GetService("TextService"))
 local Teams: Teams = cloneref(game:GetService("Teams"))
 local TweenService: TweenService = cloneref(game:GetService("TweenService"))
 
-local genvTable = {}
-local getgenv = getgenv or function()
-	return genvTable
-end
-
-local setclipboard = setclipboard or function() end
-
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
@@ -90,11 +83,22 @@ local Library = {
 	Registry = {},
 	DPIRegistry = {},
 }
-pcall(function()
-	Library.DevicePlatform = UserInputService:GetPlatform()
-end)
-Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS)
-Library.MinSize = Library.IsMobile and Vector2.new(480, 240) or Vector2.new(480, 360)
+
+if RunService:IsStudio() then
+	if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then
+		Library.IsMobile = true
+		Library.MinSize = Vector2.new(480, 240)
+	else
+		Library.IsMobile = false
+		Library.MinSize = Vector2.new(480, 360)
+	end
+else
+	pcall(function()
+		Library.DevicePlatform = UserInputService:GetPlatform()
+	end)
+	Library.IsMobile = (Library.DevicePlatform == Enum.Platform.Android or Library.DevicePlatform == Enum.Platform.IOS)
+	Library.MinSize = Library.IsMobile and Vector2.new(480, 240) or Vector2.new(480, 360)
+end
 
 local Templates = {
 	--// UI \\-
