@@ -3521,7 +3521,7 @@ do
 					table.insert(Dropdown.Values, val)
 				end
 			elseif typeof(Values) == "string" then
-				table.insert(Dropdown.Values, val)
+				table.insert(Dropdown.Values, Values)
 			else
 				return
 			end
@@ -3540,7 +3540,7 @@ do
 					table.insert(Dropdown.DisabledValues, val)
 				end
 			elseif typeof(DisabledValues) == "string" then
-				table.insert(Dropdown.DisabledValues, val)
+				table.insert(Dropdown.DisabledValues, DisabledValues)
 			else
 				return
 			end
