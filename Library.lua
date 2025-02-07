@@ -3495,7 +3495,7 @@ do
 			if Info.Multi then
 				local Table = {}
 
-				for Val, Active in pairs(Value) do
+				for Val, Active in pairs(Value or {}) do
 					if Active and table.find(Dropdown.Values, Val) then
 						Table[Val] = true
 					end
