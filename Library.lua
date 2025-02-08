@@ -180,6 +180,8 @@ local Templates = {
 		Numeric = false,
 		ClearTextOnFocus = true,
 		Placeholder = "",
+		AllowEmpty = true,
+		EmptyReset = "---",
 
 		Callback = function() end,
 		Changed = function() end,
@@ -207,7 +209,6 @@ local Templates = {
 		Values = {},
 		DisabledValues = {},
 		Multi = false,
-		AllowNull = false,
 		MaxVisibleDropdownItems = 8,
 
 		Callback = function() end,
@@ -313,6 +314,9 @@ local function StopTween(Tween: TweenBase)
 	end
 
 	Tween:Cancel()
+end
+local function Trim(Text: string)
+	return Text:match("^%s*(.-)%s*$")
 end
 
 local function GetPlayers(ExcludeLocalPlayer: boolean?)
@@ -2830,6 +2834,8 @@ do
 			Numeric = Info.Numeric,
 			ClearTextOnFocus = Info.ClearTextOnFocus,
 			Placeholder = Info.Placeholder,
+			AllowEmpty = Info.AllowEmpty,
+			EmptyReset = Info.EmptyReset,
 
 			Tooltip = Info.Tooltip,
 			DisabledTooltip = Info.DisabledTooltip,
@@ -2894,6 +2900,10 @@ do
 		end
 
 		function Input:SetValue(Text)
+			if not Input.AllowEmpty and Trim(Text) == "" then
+				Text = Input.EmptyReset
+			end
+
 			if Info.MaxLength and #Text > Info.MaxLength then
 				Text = Text:sub(1, Info.MaxLength)
 			end
@@ -4983,7 +4993,7 @@ function Library:CreateWindow(WindowInfo)
 
 		--// Cancel Search if Search Text is empty
 		local Search = SearchBox.Text:lower()
-		if Search:gsub(" ", "") == "" or Library.ActiveTab.IsKeyTab then
+		if Trim(Search) == "" or Library.ActiveTab.IsKeyTab then
 			LastTab = nil
 			return
 		end
