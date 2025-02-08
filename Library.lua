@@ -174,8 +174,8 @@ local Templates = {
 		Visible = true,
 	},
 	Input = {
+		Text = "Input",
 		Default = "Input",
-		Value = "",
 		Finished = false,
 		Numeric = false,
 		ClearTextOnFocus = true,
