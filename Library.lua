@@ -174,7 +174,7 @@ local Templates = {
 		Visible = true,
 	},
 	Input = {
-		Text = "Input",
+		Default = "Input",
 		Value = "",
 		Finished = false,
 		Numeric = false,
@@ -2828,7 +2828,7 @@ do
 		local Container = Groupbox.Container
 
 		local Input = {
-			Text = Info.Text,
+			Text = Info.Default,
 			Value = Info.Value,
 			Finished = Info.Finished,
 			Numeric = Info.Numeric,
