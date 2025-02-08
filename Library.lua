@@ -2828,8 +2828,8 @@ do
 		local Container = Groupbox.Container
 
 		local Input = {
-			Text = Info.Default,
-			Value = Info.Value,
+			Text = Info.Title,
+			Value = Info.Default,
 			Finished = Info.Finished,
 			Numeric = Info.Numeric,
 			ClearTextOnFocus = Info.ClearTextOnFocus,
