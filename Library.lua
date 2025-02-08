@@ -3227,7 +3227,7 @@ do
 		end
 		local Dropdown = {
 			Text = typeof(Info.Text) == "string" and Info.Text or nil,
-			Value = Info.Multi and {},
+			Value = Info.Multi and {} or nil,
 			Values = Info.Values,
 			DisabledValues = Info.DisabledValues,
 
