@@ -5,6 +5,10 @@ local getgenv = getgenv or function()
 	return {}
 end
 local setclipboard = setclipboard or nil
+local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
+local GetHUI = gethui or function() 
+	return CoreGui 
+end
 
 local CoreGui: CoreGui = cloneref(game:GetService("CoreGui"))
 local Players: Players = cloneref(game:GetService("Players"))
@@ -539,10 +543,12 @@ end
 
 --// Main Instances \\-
 local function ParentUI(UI: Instance)
+	pcall(ProtectGui, UI);
+	
 	if not pcall(function()
-		UI.Parent = CoreGui
+		UI.Parent = GetHUI()
 	end) then
-		UI.Parent = Library.LocalPlayer:WaitForChild("PlayerGui")
+		UI.Parent = Library.LocalPlayer:WaitForChild("PlayerGui", math.huge)
 	end
 end
 
