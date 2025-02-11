@@ -546,7 +546,7 @@ local function ParentUI(UI: Instance)
 	pcall(ProtectGui, UI);
 	
 	if not pcall(function()
-		UI.Parent = GetHUI
+		UI.Parent = GetHUI()
 	end) then
 		UI.Parent = Library.LocalPlayer:WaitForChild("PlayerGui", math.huge)
 	end
