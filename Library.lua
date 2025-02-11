@@ -5,7 +5,7 @@ local getgenv = getgenv or function()
 	return {}
 end
 local setclipboard = setclipboard or nil
-local ProtectGui = protectgui or function() end
+local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local GetHUI = gethui or function() 
 	return CoreGui 
 end
