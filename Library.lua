@@ -3769,7 +3769,6 @@ function Library:Notify(...)
 			},
 		})
 	end
-
 	if Data.Description then
 		Desc = New("TextLabel", {
 			BackgroundTransparency = 1,
@@ -3813,23 +3812,21 @@ function Library:Notify(...)
 
 	function Data:ChangeTitle(NewText)
 		if Title then
-			Data.Title = tostring(NewText);
-			Title.Text = Data.Title;
-
-			Data:Resize();
+			Data.Title = tostring(NewText)
+			Title.Text = Data.Title
+			Data:Resize()
 		end
 	end
 
 	function Data:ChangeDescription(NewText)
 		if Desc then
-			Data.Description = tostring(NewText);
-			Desc.Text = Data.Description;
-
-			Data:Resize();
+			Data.Description = tostring(NewText)
+			Desc.Text = Data.Description
+			Data:Resize()
 		end
 	end
-
-	Data:Resize();
+	
+	Data:Resize()
 
 	local TimerHolder = New("Frame", {
 		BackgroundTransparency = 1,
@@ -3882,7 +3879,6 @@ function Library:Notify(...)
 		TweenService:Create(Background, Library.NotifyTweenInfo, {
 			Position = Library.NotifySide:lower() == "left" and UDim2.new(-1, -6, 0, -2) or UDim2.new(1, 6, 0, -2),
 		}):Play()
-
 		task.delay(Library.NotifyTweenInfo.Time, function()
 			Library.Notifications[FakeBackground] = nil
 			FakeBackground:Destroy()
