@@ -3796,6 +3796,7 @@ function Library:Notify(...)
 			Title.Size = UDim2.fromOffset(math.ceil(X), Y)
 			TitleX = X
 		end
+		
 		if Desc then
 			local X, Y = Library:GetTextBounds(
 				Desc.Text,
@@ -3814,6 +3815,7 @@ function Library:Notify(...)
 		if Title then
 			Data.Title = tostring(NewText);
 			Title.Text = Data.Title;
+
 			Data:Resize();
 		end
 	end
@@ -3822,6 +3824,7 @@ function Library:Notify(...)
 		if Desc then
 			Data.Description = tostring(NewText);
 			Desc.Text = Data.Description;
+
 			Data:Resize();
 		end
 	end
