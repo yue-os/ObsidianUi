@@ -3833,7 +3833,7 @@ function Library:Notify(...)
     function Data:ChangeStep(NewStep)
         if TimerFill and Data.Steps then
             NewStep = math.clamp(NewStep or 0, 0, Data.Steps)
-            TimerFill.Size = UDim2.new(NewStep / Data.Steps, 0, 0, 2) 
+            TimerFill.Size = UDim2.fromScale(NewStep / Data.Steps, 1)
         end
     end
 
