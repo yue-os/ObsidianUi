@@ -1,15 +1,6 @@
 local cloneref = (cloneref or clonereference or function(instance: any)
     return instance
 end)
-local getgenv = getgenv or function()
-    return {}
-end
-local setclipboard = setclipboard or nil
-local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
-local GetHUI = gethui or function() 
-    return CoreGui 
-end
-
 local CoreGui: CoreGui = cloneref(game:GetService("CoreGui"))
 local Players: Players = cloneref(game:GetService("Players"))
 local RunService: RunService = cloneref(game:GetService("RunService"))
@@ -18,6 +9,15 @@ local UserInputService: UserInputService = cloneref(game:GetService("UserInputSe
 local TextService: TextService = cloneref(game:GetService("TextService"))
 local Teams: Teams = cloneref(game:GetService("Teams"))
 local TweenService: TweenService = cloneref(game:GetService("TweenService"))
+
+local getgenv = getgenv or function()
+    return shared
+end
+local setclipboard = setclipboard or nil
+local protectgui = protectgui or (syn and syn.protect_gui) or function() end
+local gethui = gethui or function() 
+    return CoreGui 
+end
 
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
@@ -295,8 +295,8 @@ end
 local function IsClickInput(Input: InputObject, IncludeM2: boolean?)
     return (
         Input.UserInputType == Enum.UserInputType.MouseButton1
-        or IncludeM2 and Input.UserInputType == Enum.UserInputType.MouseButton2
-        or Input.UserInputType == Enum.UserInputType.Touch
+            or IncludeM2 and Input.UserInputType == Enum.UserInputType.MouseButton2
+            or Input.UserInputType == Enum.UserInputType.Touch
     ) and Input.UserInputState == Enum.UserInputState.Begin
 end
 local function IsHoverInput(Input: InputObject)
@@ -543,11 +543,11 @@ end
 
 --// Main Instances \\-
 local function ParentUI(UI: Instance)
-    pcall(ProtectGui, UI);
-    
+    pcall(protectgui, UI);
+
     if not pcall(function()
-        UI.Parent = GetHUI()
-    end) then
+            UI.Parent = gethui()
+        end) then
         UI.Parent = Library.LocalPlayer:WaitForChild("PlayerGui", math.huge)
     end
 end
@@ -1102,7 +1102,7 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(Input: InputObje
             CurrentMenu
             and not (
                 Library:MouseIsOverFrame(CurrentMenu.Menu, Location)
-                or Library:MouseIsOverFrame(CurrentMenu.Holder, Location)
+                    or Library:MouseIsOverFrame(CurrentMenu.Holder, Location)
             )
         then
             CurrentMenu:Close()
@@ -3702,6 +3702,7 @@ function Library:Notify(...)
         Data.Description = tostring(Info.Description)
         Data.Time = Info.Time or 5
         Data.SoundId = Info.SoundId
+        Data.Steps = Info.Steps
     else
         Data.Description = tostring(Info)
         Data.Time = select(2, ...) or 5
@@ -3756,6 +3757,8 @@ function Library:Notify(...)
     local TitleX = 0
     local DescX = 0
 
+    local TimerFill
+
     if Data.Title then
         Title = New("TextLabel", {
             BackgroundTransparency = 1,
@@ -3796,7 +3799,7 @@ function Library:Notify(...)
             Title.Size = UDim2.fromOffset(math.ceil(X), Y)
             TitleX = X
         end
-        
+
         if Desc then
             local X, Y = Library:GetTextBounds(
                 Desc.Text,
@@ -3826,13 +3829,20 @@ function Library:Notify(...)
             Data:Resize()
         end
     end
-    
+
+    function Data:ChangeStep(NewStep)
+        if TimerFill and Data.Steps then
+            NewStep = math.clamp(NewStep or 0, 0, Data.Steps)
+            TimerFill.Size = UDim2.new(NewStep / Data.Steps, 0, 0, 2) 
+        end
+    end
+
     Data:Resize()
 
     local TimerHolder = New("Frame", {
         BackgroundTransparency = 1,
         Size = UDim2.new(1, 0, 0, 7),
-        Visible = typeof(Data.Time) ~= "Instance",
+        Visible = typeof(Data.Time) ~= "Instance" or typeof(Data.Steps) == "number",
         Parent = Holder,
     })
     local TimerBar = New("Frame", {
@@ -3843,12 +3853,15 @@ function Library:Notify(...)
         Size = UDim2.new(1, 0, 0, 2),
         Parent = TimerHolder,
     })
-    local TimerFill = New("Frame", {
+    TimerFill = New("Frame", {
         BackgroundColor3 = "AccentColor",
         Size = UDim2.fromScale(1, 1),
         Parent = TimerBar,
     })
-
+    
+    if typeof(Data.Time) == "Instance" then
+        TimerFill.Size = UDim2.fromScale(0, 1)
+    end
     if Data.SoundId then
         New("Sound", {
             SoundId = "rbxassetid://" .. tostring(Data.SoundId):gsub("rbxassetid://", ""),
@@ -3859,7 +3872,7 @@ function Library:Notify(...)
     end
 
     Library.Notifications[FakeBackground] = Data
-
+    
     FakeBackground.Visible = true
     TweenService:Create(Background, Library.NotifyTweenInfo, {
         Position = UDim2.fromOffset(-2, -2),
@@ -5145,8 +5158,8 @@ function Library:CreateWindow(WindowInfo)
         if
             (
                 typeof(Library.ToggleKeybind) == "table"
-                and Library.ToggleKeybind.Type == "KeyPicker"
-                and Input.KeyCode.Name == Library.ToggleKeybind.Value
+                    and Library.ToggleKeybind.Type == "KeyPicker"
+                    and Input.KeyCode.Name == Library.ToggleKeybind.Value
             ) or Input.KeyCode == Library.ToggleKeybind
         then
             Library.Toggle()
