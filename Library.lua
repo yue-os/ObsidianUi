@@ -165,6 +165,7 @@ local Templates = {
         ShowCustomCursor = true,
         Font = Enum.Font.Code,
         ToggleKeybind = Enum.KeyCode.RightControl,
+        MobileButtonsSide = "Left",
     },
     Toggle = {
         Text = "Toggle",
@@ -4980,7 +4981,7 @@ function Library:CreateWindow(WindowInfo)
     end
 
     if Library.IsMobile then
-        Library:AddDraggableButton("Toggle", function()
+        local ToggleButton = Library:AddDraggableButton("Toggle", function()
             Library:Toggle()
         end)
 
@@ -4988,7 +4989,16 @@ function Library:CreateWindow(WindowInfo)
             Library.CantDragForced = not Library.CantDragForced
             self:SetText(Library.CantDragForced and "Unlock" or "Lock")
         end)
-        LockButton.Button.Position = UDim2.fromOffset(6, 46)
+
+        if WindowInfo.MobileButtonsSide == "Right" then
+            ToggleButton.Button.Position = UDim2.new(1, -6, 0, 6)
+            ToggleButton.Button.AnchorPoint = Vector2.new(1, 0)
+
+            LockButton.Button.Position = UDim2.new(1, -6, 0, 46)
+            LockButton.Button.AnchorPoint = Vector2.new(1, 0)
+        else
+            LockButton.Button.Position = UDim2.fromOffset(6, 46)
+        end
     end
 
     --// Execution \\--
