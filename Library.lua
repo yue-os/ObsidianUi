@@ -1412,6 +1412,10 @@ do
         end
 
         function KeyPicker:Display()
+            if Library.Unloaded then 
+                return 
+            end
+
             local X, Y =
                 Library:GetTextBounds(KeyPicker.Value, Picker.FontFace, Picker.TextSize, ToggleLabel.AbsoluteSize.X)
             Picker.Text = KeyPicker.Value
@@ -1842,6 +1846,10 @@ do
         end
 
         function ColorPicker:Display()
+            if Library.Unloaded then 
+                return 
+            end
+
             ColorPicker.Value = Color3.fromHSV(ColorPicker.Hue, ColorPicker.Sat, ColorPicker.Vib)
 
             Holder.BackgroundColor3 = ColorPicker.Value
@@ -2307,6 +2315,10 @@ do
             InitEvents(SubButton)
 
             function SubButton:UpdateColors()
+                if Library.Unloaded then 
+                    return
+                end
+
                 StopTween(SubButton.Tween)
 
                 SubButton.Base.BackgroundColor3 = SubButton.Disabled and Library.Scheme.BackgroundColor
@@ -2364,6 +2376,10 @@ do
         end
 
         function Button:UpdateColors()
+            if Library.Unloaded then 
+                return
+            end
+
             StopTween(Button.Tween)
 
             Button.Base.BackgroundColor3 = Button.Disabled and Library.Scheme.BackgroundColor
@@ -2506,6 +2522,10 @@ do
         end
 
         function Toggle:Display()
+            if Library.Unloaded then
+                return
+            end
+
             CheckboxStroke.Transparency = Toggle.Disabled and 0.5 or 0
 
             if Toggle.Disabled then
@@ -2708,6 +2728,10 @@ do
         end
 
         function Toggle:Display()
+            if Library.Unloaded then
+                return
+            end
+
             local Offset = Toggle.Value and 1 or 0
 
             Switch.BackgroundTransparency = Toggle.Disabled and 0.75 or 0
@@ -2899,6 +2923,10 @@ do
         })
 
         function Input:UpdateColors()
+            if Library.Unloaded then
+                return
+            end
+
             Label.TextTransparency = Input.Disabled and 0.8 or 0
             Box.TextTransparency = Input.Disabled and 0.8 or 0
         end
@@ -3069,6 +3097,10 @@ do
         })
 
         function Slider:UpdateColors()
+            if Library.Unloaded then
+                return
+            end
+
             if SliderLabel then
                 SliderLabel.TextTransparency = Slider.Disabled and 0.8 or 0
             end
@@ -3079,6 +3111,10 @@ do
         end
 
         function Slider:Display()
+            if Library.Unloaded then
+                return
+            end
+
             if Info.Compact then
                 DisplayLabel.Text = string.format("%s: %s%s%s", Slider.Text, Slider.Prefix, Slider.Value, Slider.Suffix)
             elseif Info.HideMax then
@@ -3370,12 +3406,20 @@ do
         end
 
         function Dropdown:UpdateColors()
+            if Library.Unloaded then
+                return
+            end
+
             Label.TextTransparency = Dropdown.Disabled and 0.8 or 0
             Display.TextTransparency = Dropdown.Disabled and 0.8 or 0
             ArrowImage.ImageTransparency = Dropdown.Disabled and 0.8 or MenuTable.Active and 0 or 0.5
         end
 
         function Dropdown:Display()
+            if Library.Unloaded then
+                return
+            end
+
             local Str = ""
 
             if Info.Multi then
