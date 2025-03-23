@@ -4,6 +4,7 @@
 
 ## Table of Contents
 - [Getting Started](#getting-started)
+- [Icon Information](#icon-information)
 - [Core Components](#core-components)
   - [Window](#window)
   - [Tabs](#tabs)
@@ -48,6 +49,10 @@ local Window = Library:CreateWindow({
     AutoShow = true
 })
 ```
+
+## Icon Information
+
+The Obsidian UI Library uses [Lucide](https://lucide.dev/) for Tab Icons and more.
 
 ## Core Components
 
