@@ -72,17 +72,17 @@ local Library = {
 
     IsLightTheme = false,
     Scheme = {
-        BackgroundColor = Color3.fromRGB(15, 15, 15),
-        MainColor = Color3.fromRGB(25, 25, 25),
-        AccentColor = Color3.fromRGB(125, 85, 255),
-        OutlineColor = Color3.fromRGB(40, 40, 40),
-        FontColor = Color3.new(1, 1, 1),
-        Font = Font.fromEnum(Enum.Font.Code),
+    BackgroundColor = Color3.fromRGB(24, 26, 32),
+    MainColor = Color3.fromRGB(34, 37, 49),
+    AccentColor = Color3.fromRGB(0, 170, 255), -- Soft blue accent
+    OutlineColor = Color3.fromRGB(44, 47, 59),
+    FontColor = Color3.fromRGB(230, 230, 235),
+    Font = Font.fromEnum(Enum.Font.Gotham), -- Modern, readable font
 
-        Red = Color3.fromRGB(255, 50, 50),
-        Dark = Color3.new(0, 0, 0),
-        White = Color3.new(1, 1, 1),
-    },
+    Red = Color3.fromRGB(255, 80, 80),
+    Dark = Color3.fromRGB(18, 20, 24),
+    White = Color3.fromRGB(255, 255, 255),
+},
 
     Registry = {},
     DPIRegistry = {},
