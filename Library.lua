@@ -44,8 +44,8 @@ local Library = {
     Notifications = {},
 
     ToggleKeybind = Enum.KeyCode.RightControl,
-    TweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    NotifyTweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    NotifyTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 
     Toggled = false,
     Unloaded = false,
@@ -68,21 +68,21 @@ local Library = {
 
     MinSize = Vector2.new(480, 360),
     DPIScale = 1,
-    CornerRadius = 10,
+    CornerRadius = 4,
 
     IsLightTheme = false,
     Scheme = {
-    BackgroundColor = Color3.fromRGB(24, 26, 32),
-    MainColor = Color3.fromRGB(34, 37, 49),
-    AccentColor = Color3.fromRGB(0, 170, 255), -- Soft blue accent
-    OutlineColor = Color3.fromRGB(44, 47, 59),
-    FontColor = Color3.fromRGB(230, 230, 235),
-    Font = Font.fromEnum(Enum.Font.Gotham), -- Modern, readable font
+        BackgroundColor = Color3.fromRGB(15, 15, 15),
+        MainColor = Color3.fromRGB(25, 25, 25),
+        AccentColor = Color3.fromRGB(125, 85, 255),
+        OutlineColor = Color3.fromRGB(40, 40, 40),
+        FontColor = Color3.new(1, 1, 1),
+        Font = Font.fromEnum(Enum.Font.Code),
 
-    Red = Color3.fromRGB(255, 80, 80),
-    Dark = Color3.fromRGB(18, 20, 24),
-    White = Color3.fromRGB(255, 255, 255),
-},
+        Red = Color3.fromRGB(255, 50, 50),
+        Dark = Color3.new(0, 0, 0),
+        White = Color3.new(1, 1, 1),
+    },
 
     Registry = {},
     DPIRegistry = {},
@@ -127,14 +127,11 @@ local Templates = {
         TextColor3 = "FontColor",
     },
     TextButton = {
-    AutoButtonColor = false,
-    BorderSizePixel = 0,
-    FontFace = "Font",
-    RichText = true,
-    TextColor3 = "FontColor",
-    TextSize = 16, -- Larger text
-    BackgroundColor3 = "AccentColor",
-    Size = UDim2.new(0, 120, 0, 36), -- Larger button
+        AutoButtonColor = false,
+        BorderSizePixel = 0,
+        FontFace = "Font",
+        RichText = true,
+        TextColor3 = "FontColor",
     },
     TextBox = {
         BorderSizePixel = 0,
@@ -145,9 +142,6 @@ local Templates = {
         end,
         Text = "",
         TextColor3 = "FontColor",
-        TextSize = 16,
-        BackgroundColor3 = "MainColor",
-        Size = UDim2.new(0, 180, 0, 36), -- Larger input
     },
     UIListLayout = {
         SortOrder = Enum.SortOrder.LayoutOrder,
