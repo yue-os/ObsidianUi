@@ -44,8 +44,8 @@ local Library = {
     Notifications = {},
 
     ToggleKeybind = Enum.KeyCode.RightControl,
-    TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    NotifyTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    TweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    NotifyTweenInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 
     Toggled = false,
     Unloaded = false,
@@ -68,7 +68,7 @@ local Library = {
 
     MinSize = Vector2.new(480, 360),
     DPIScale = 1,
-    CornerRadius = 4,
+    CornerRadius = 10,
 
     IsLightTheme = false,
     Scheme = {
@@ -127,11 +127,14 @@ local Templates = {
         TextColor3 = "FontColor",
     },
     TextButton = {
-        AutoButtonColor = false,
-        BorderSizePixel = 0,
-        FontFace = "Font",
-        RichText = true,
-        TextColor3 = "FontColor",
+    AutoButtonColor = false,
+    BorderSizePixel = 0,
+    FontFace = "Font",
+    RichText = true,
+    TextColor3 = "FontColor",
+    TextSize = 16, -- Larger text
+    BackgroundColor3 = "AccentColor",
+    Size = UDim2.new(0, 120, 0, 36), -- Larger button
     },
     TextBox = {
         BorderSizePixel = 0,
@@ -142,6 +145,9 @@ local Templates = {
         end,
         Text = "",
         TextColor3 = "FontColor",
+        TextSize = 16,
+        BackgroundColor3 = "MainColor",
+        Size = UDim2.new(0, 180, 0, 36), -- Larger input
     },
     UIListLayout = {
         SortOrder = Enum.SortOrder.LayoutOrder,
