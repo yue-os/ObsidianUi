@@ -152,8 +152,9 @@ local Templates = {
 
     --// Library \\--
     Window = {
-        Title = "No Title",
-        Footer = "No Footer",
+        Title = "Y-Hub",
+        Footer = ".gg/tmS5Qbsq2F",
+        Icon = "128724973822559",
         Position = UDim2.fromOffset(6, 6),
         Size = UDim2.fromOffset(720, 600),
         IconSize = UDim2.fromOffset(30, 30),
@@ -164,7 +165,7 @@ local Templates = {
         NotifySide = "Right",
         ShowCustomCursor = true,
         Font = Enum.Font.Code,
-        ToggleKeybind = Enum.KeyCode.RightControl,
+        ToggleKeybind = Enum.KeyCode.LeftControl,
         MobileButtonsSide = "Left",
     },
     Toggle = {
