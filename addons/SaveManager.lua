@@ -386,6 +386,25 @@ local SaveManager = {} do
         end
     end
 
+    function SaveManager:AutoSave(interval)
+        interval = interval or 1 -- Default to 1 second if not specified
+    
+        task.spawn(function()
+            while true do
+                task.wait(interval)
+    
+                local configName = self:GetAutoloadConfig()
+                if configName and configName ~= "none" then
+                    local success, err = self:Save(configName)
+                    if not success then
+                        warn("[SaveManager] AutoSave failed:", err)
+                    end
+                end
+            end
+        end)
+    end
+
+
     function SaveManager:SaveAutoloadConfig(name)
         SaveManager:CheckFolderTree()
 
