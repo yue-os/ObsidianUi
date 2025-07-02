@@ -62,15 +62,34 @@ local SaveManager = {} do
         },
         Dropdown = {
             Save = function(idx, object)
-                return { type = "Dropdown", idx = idx, value = object.Value, mutli = object.Multi }
+                local value = object.Value
+        
+                -- Convert from key=true to list if Multi
+                if object.Multi and typeof(value) == "table" then
+                    local list = {}
+                    for k, v in pairs(value) do
+                        if v then table.insert(list, k) end
+                    end
+                    value = list
+                end
+        
+                return { type = "Dropdown", idx = idx, value = value, multi = object.Multi }
             end,
             Load = function(idx, data)
                 local object = SaveManager.Library.Options[idx]
-                if object and object.Value ~= data.value then
+                if object and data.multi and typeof(data.value) == "table" then
+                    -- Convert list back to key=true table
+                    local map = {}
+                    for _, v in ipairs(data.value) do
+                        map[v] = true
+                    end
+                    object:SetValue(map)
+                else
                     object:SetValue(data.value)
                 end
             end,
         },
+
         ColorPicker = {
             Save = function(idx, object)
                 return { type = "ColorPicker", idx = idx, value = object.Value:ToHex(), transparency = object.Transparency }
