@@ -242,9 +242,6 @@ local SaveManager = {} do
                 if config ~= "none" then
                     local success, err = self:Save(config)
                     if not success then
-                        warn("AutoSave failed:", err)
-                    else
-                        print("AutoSaved config:", config)
                     end
                 end
             end
