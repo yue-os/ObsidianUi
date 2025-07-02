@@ -228,6 +228,30 @@ local SaveManager = {} do
         return true
     end
 
+    function SaveManager:AutoSave(interval)
+        interval = interval or 30
+        task.spawn(function()
+            while true do
+                task.wait(interval)
+    
+                if self.Library and self.Library.Toggles.SaveManager_AutoSaveToggle and not self.Library.Toggles.SaveManager_AutoSaveToggle.Value then
+                    continue
+                end
+    
+                local config = self:GetAutoloadConfig()
+                if config ~= "none" then
+                    local success, err = self:Save(config)
+                    if not success then
+                        warn("AutoSave failed:", err)
+                    else
+                        print("AutoSaved config:", config)
+                    end
+                end
+            end
+        end)
+    end
+
+    
     function SaveManager:Load(name)
         if (not name) then
             return false, "no config file is selected"
