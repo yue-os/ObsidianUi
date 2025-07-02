@@ -66,8 +66,16 @@ local SaveManager = {} do
             end,
             Load = function(idx, data)
                 local object = SaveManager.Library.Options[idx]
-                if object and object.Value ~= data.value then
-                    object:SetValue(data.value)
+                if object then
+                    if object.Multi then
+                        local dict = {}
+                        for _, v in ipairs(data.value or {}) do
+                            dict[v] = true
+                        end
+                        object:SetValue(dict)
+                    else
+                        object:SetValue(data.value)
+                    end
                 end
             end,
         },
