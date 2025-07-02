@@ -66,16 +66,8 @@ local SaveManager = {} do
             end,
             Load = function(idx, data)
                 local object = SaveManager.Library.Options[idx]
-                if object then
-                    if object.Multi then
-                        local dict = {}
-                        for _, v in ipairs(data.value or {}) do
-                            dict[v] = true
-                        end
-                        object:SetValue(dict)
-                    else
-                        object:SetValue(data.value)
-                    end
+                if object and object.Value ~= data.value then
+                    object:SetValue(data.value)
                 end
             end,
         },
@@ -236,27 +228,6 @@ local SaveManager = {} do
         return true
     end
 
-    function SaveManager:AutoSave(interval)
-        interval = interval or 30
-        task.spawn(function()
-            while true do
-                task.wait(interval)
-    
-                if self.Library and self.Library.Toggles.SaveManager_AutoSaveToggle and not self.Library.Toggles.SaveManager_AutoSaveToggle.Value then
-                    continue
-                end
-    
-                local config = self:GetAutoloadConfig()
-                if config ~= "none" then
-                    local success, err = self:Save(config)
-                    if not success then
-                    end
-                end
-            end
-        end)
-    end
-
-    
     function SaveManager:Load(name)
         if (not name) then
             return false, "no config file is selected"
