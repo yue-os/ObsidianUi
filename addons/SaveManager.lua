@@ -64,21 +64,26 @@ local SaveManager = {} do
             Save = function(idx, object)
                 local value = object.Value
         
-                -- Convert from key=true to list if Multi
+                -- Convert from { Option = true, ... } to { "Option", ... } if Multi is true
                 if object.Multi and typeof(value) == "table" then
                     local list = {}
                     for k, v in pairs(value) do
-                        if v then table.insert(list, k) end
+                        if v == true then
+                            table.insert(list, k)
+                        end
                     end
                     value = list
                 end
         
                 return { type = "Dropdown", idx = idx, value = value, multi = object.Multi }
             end,
+        
             Load = function(idx, data)
                 local object = SaveManager.Library.Options[idx]
-                if object and data.multi and typeof(data.value) == "table" then
-                    -- Convert list back to key=true table
+                if not object then return end
+        
+                if data.multi and typeof(data.value) == "table" then
+                    -- Convert from { "Option", ... } to { Option = true, ... }
                     local map = {}
                     for _, v in ipairs(data.value) do
                         map[v] = true
@@ -89,6 +94,7 @@ local SaveManager = {} do
                 end
             end,
         },
+
 
         ColorPicker = {
             Save = function(idx, object)
