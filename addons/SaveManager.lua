@@ -64,37 +64,57 @@ local SaveManager = {} do
             Save = function(idx, object)
                 local value = object.Value
         
-                -- Convert from { Option = true, ... } to { "Option", ... } if Multi is true
-                if object.Multi and typeof(value) == "table" then
-                    local list = {}
-                    for k, v in pairs(value) do
-                        if v == true then
-                            table.insert(list, k)
+                if object.Multi then
+                    local resultList = {}
+        
+                    if typeof(value) == "table" then
+                        if #value > 0 then
+                            -- It's a list already
+                            resultList = value
+                        else
+                            -- Assume it's a map
+                            for k, v in pairs(value) do
+                                if v then table.insert(resultList, k) end
+                            end
                         end
                     end
-                    value = list
+        
+                    value = resultList
                 end
         
-                return { type = "Dropdown", idx = idx, value = value, multi = object.Multi }
+                return {
+                    type = "Dropdown",
+                    idx = idx,
+                    value = value,
+                    multi = object.Multi,
+                }
             end,
         
             Load = function(idx, data)
                 local object = SaveManager.Library.Options[idx]
                 if not object then return end
         
-                if data.multi and typeof(data.value) == "table" then
-                    -- Convert from { "Option", ... } to { Option = true, ... }
-                    local map = {}
-                    for _, v in ipairs(data.value) do
-                        map[v] = true
+                if data.multi then
+                    local resultMap = {}
+        
+                    if typeof(data.value) == "table" then
+                        if #data.value > 0 then
+                            -- It's a list, convert to key = true
+                            for _, item in ipairs(data.value) do
+                                resultMap[item] = true
+                            end
+                        else
+                            -- If already in map format
+                            resultMap = data.value
+                        end
                     end
-                    object:SetValue(map)
+        
+                    object:SetValue(resultMap)
                 else
                     object:SetValue(data.value)
                 end
             end,
         },
-
 
         ColorPicker = {
             Save = function(idx, object)
