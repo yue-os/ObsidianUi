@@ -1213,6 +1213,8 @@ function Library:OnUnload(Callback)
 end
 
 function Library:Unload()
+    Library.Unloaded = true
+
     for Index = #Library.Signals, 1, -1 do
         local Connection = table.remove(Library.Signals, Index)
         Connection:Disconnect()
@@ -1222,7 +1224,6 @@ function Library:Unload()
         Library:SafeCallback(Callback)
     end
 
-    Library.Unloaded = true
     ScreenGui:Destroy()
     getgenv().Library = nil
 end
