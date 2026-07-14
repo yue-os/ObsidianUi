@@ -4026,8 +4026,8 @@ function Library:CreateWindow(WindowInfo)
                 Position = true,
             },
         })
-
-        MainScale = New("UIScale", {
+        
+        New("UIScale", {
             Parent = MainFrame,
             Scale = 1
         })
