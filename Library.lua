@@ -2777,7 +2777,8 @@ do
             TweenService:Create(Label, Library.TweenInfo, {
                 TextTransparency = Toggle.Value and 0 or 0.4,
             }):Play()
-            TweenService:Create(Ball, Library.TweenInfo, {
+            local BounceTween = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+            TweenService:Create(Ball, BounceTween, {
                 AnchorPoint = Vector2.new(Offset, 0),
                 Position = UDim2.fromScale(Offset, 0),
             }):Play()
@@ -4000,6 +4001,7 @@ function Library:CreateWindow(WindowInfo)
     local ResizeButton
     local Tabs
     local Container
+    local MainScale
     do
         Library.KeybindFrame, Library.KeybindContainer = Library:AddDraggableMenu("Keybinds")
         Library.KeybindFrame.AnchorPoint = Vector2.new(0, 0.5)
@@ -4024,6 +4026,12 @@ function Library:CreateWindow(WindowInfo)
                 Position = true,
             },
         })
+
+        MainScale = New("UIScale", {
+            Parent = MainFrame,
+            Scale = 1
+        })
+        
         New("UICorner", {
             CornerRadius = UDim.new(0, WindowInfo.CornerRadius - 1),
             Parent = MainFrame,
@@ -4781,6 +4789,13 @@ function Library:CreateWindow(WindowInfo)
             TabContainer.Visible = true
 
             Library.ActiveTab = Tab
+
+            TabContainer.Position = UDim2.fromOffset(0, 15) -- Start slightly lower
+            TweenService:Create(TabContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                Position = UDim2.fromOffset(0, 0)
+            }):Play()
+
+            Library.ActiveTab = Tab
         end
 
         function Tab:Hide()
@@ -4986,6 +5001,13 @@ function Library:CreateWindow(WindowInfo)
             TabContainer.Visible = true
 
             Library.ActiveTab = Tab
+
+            TabContainer.Position = UDim2.fromOffset(0, 15) -- Start slightly lower
+            TweenService:Create(TabContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                Position = UDim2.fromOffset(0, 0)
+            }):Play()
+
+            Library.ActiveTab = Tab
         end
 
         function Tab:Hide()
@@ -5033,8 +5055,21 @@ function Library:CreateWindow(WindowInfo)
             Library.Toggled = not Library.Toggled
         end
 
-        MainFrame.Visible = Library.Toggled
         ModalElement.Modal = Library.Toggled
+
+        if Library.Toggled then
+            MainFrame.Visible = true
+            MainScale.Scale = 0.85
+            TweenService:Create(MainScale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+        else
+            local CloseTween = TweenService:Create(MainScale, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Scale = 0.85 })
+            CloseTween:Play()
+            CloseTween.Completed:Once(function()
+                if not Library.Toggled then 
+                    MainFrame.Visible = false 
+                end
+            end)
+        end
 
         if Library.Toggled and not Library.IsMobile then
             local OldMouseIconEnabled = UserInputService.MouseIconEnabled
