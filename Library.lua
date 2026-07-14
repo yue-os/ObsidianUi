@@ -44,8 +44,8 @@ local Library = {
     Notifications = {},
 
     ToggleKeybind = Enum.KeyCode.RightControl,
-    TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    NotifyTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    TweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+    NotifyTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 
     Toggled = false,
     Unloaded = false,
@@ -1000,6 +1000,8 @@ function Library:AddContextMenu(
         })
     end
 
+    local MenuScale = Instance.new("UIScale", Menu)
+
     local Table = {
         Active = false,
         Holder = Holder,
@@ -1047,6 +1049,11 @@ function Library:AddContextMenu(
         end
 
         Menu.Visible = true
+        MenuScale.Scale = 0.8
+
+        TweenService:Create(MenuScale, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Scale = 1
+        }):Play()
 
         Table.Signal = Holder:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
             if typeof(Offset) == "function" then
@@ -2237,35 +2244,46 @@ do
         end
 
         local function InitEvents(Button)
-            Button.Base.MouseEnter:Connect(function()
-                if Button.Disabled then
-                    return
-                end
+            -- Create a UIScale for non-destructive size animations
+            local Scale = Instance.new("UIScale", Button.Base)
+            Button.Base.AnchorPoint = Vector2.new(0.5, 0.5)
+            Button.Base.Position = UDim2.fromScale(0.5, 0.5)
 
-                Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, {
-                    TextTransparency = 0,
-                })
+            Button.Base.MouseEnter:Connect(function()
+                if Button.Disabled then return end
+                Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, { TextTransparency = 0 })
                 Button.Tween:Play()
             end)
+            
             Button.Base.MouseLeave:Connect(function()
-                if Button.Disabled then
-                    return
-                end
-
-                Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, {
-                    TextTransparency = 0.4,
-                })
+                if Button.Disabled then return end
+                Button.Tween = TweenService:Create(Button.Base, Library.TweenInfo, { TextTransparency = 0.4 })
                 Button.Tween:Play()
+                -- Reset scale if they drag their mouse off while clicking
+                TweenService:Create(Scale, Library.TweenInfo, { Scale = 1 }):Play()
+            end)
+
+            -- The "Squish" down effect when pressed
+            Button.Base.InputBegan:Connect(function(input)
+                if Button.Disabled or Button.Locked then return end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    TweenService:Create(Scale, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 0.95 }):Play()
+                end
+            end)
+
+            -- The bounce back effect when released
+            Button.Base.InputEnded:Connect(function(input)
+                if Button.Disabled or Button.Locked then return end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    TweenService:Create(Scale, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+                end
             end)
 
             Button.Base.MouseButton1Click:Connect(function()
-                if Button.Disabled or Button.Locked then
-                    return
-                end
+                if Button.Disabled or Button.Locked then return end
 
                 if Button.DoubleClick then
                     Button.Locked = true
-
                     Button.Base.Text = "Are you sure?"
                     Button.Base.TextColor3 = Library.Scheme.AccentColor
                     Library.Registry[Button.Base].TextColor3 = "AccentColor"
@@ -2276,11 +2294,9 @@ do
                     Button.Base.TextColor3 = Button.Risky and Library.Scheme.Red or Library.Scheme.FontColor
                     Library.Registry[Button.Base].TextColor3 = Button.Risky and "Red" or "FontColor"
 
-                    if Clicked then
-                        Library:SafeCallback(Button.Func)
-                    end
+                    if Clicked then Library:SafeCallback(Button.Func) end
 
-                    RunService.RenderStepped:Wait() --// Mouse Button fires without waiting (i hate roblox)
+                    RunService.RenderStepped:Wait() 
                     Button.Locked = false
                     return
                 end
@@ -3134,7 +3150,9 @@ do
             end
 
             local X = (Slider.Value - Slider.Min) / (Slider.Max - Slider.Min)
-            Fill.Size = UDim2.fromScale(X, 1)
+            TweenService:Create(Fill, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.fromScale(X, 1)
+        }):Play()
         end
 
         function Slider:OnChanged(Func)
