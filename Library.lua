@@ -4342,11 +4342,13 @@ function Library:CreateWindow(WindowInfo)
                 New("Frame", {
                     BackgroundTransparency = 1,
                     LayoutOrder = -1,
+                    Size = UDim2.fromOffset(0, 0),
                     Parent = TabLeft,
                 })
                 New("Frame", {
                     BackgroundTransparency = 1,
                     LayoutOrder = 1,
+                    Size = UDim2.fromOffset(0, 0),
                     Parent = TabLeft,
                 })
 
@@ -4371,11 +4373,13 @@ function Library:CreateWindow(WindowInfo)
                 New("Frame", {
                     BackgroundTransparency = 1,
                     LayoutOrder = -1,
+                    Size = UDim2.fromOffset(0, 0),
                     Parent = TabRight,
                 })
                 New("Frame", {
                     BackgroundTransparency = 1,
                     LayoutOrder = 1,
+                    Size = UDim2.fromOffset(0, 0),
                     Parent = TabRight,
                 })
 
