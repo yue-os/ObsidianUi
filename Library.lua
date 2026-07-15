@@ -4026,8 +4026,8 @@ function Library:CreateWindow(WindowInfo)
                 Position = true,
             },
         })
-        
-        New("UIScale", {
+
+        MainScale = New("UIScale", {
             Parent = MainFrame,
             Scale = 1
         })
@@ -5053,6 +5053,10 @@ function Library:CreateWindow(WindowInfo)
     end
 
     function Library:Toggle(Value: boolean?)
+        if not MainScale or not MainScale.Parent then
+            return
+        end
+        
         if typeof(Value) == "boolean" then
             Library.Toggled = Value
         else
