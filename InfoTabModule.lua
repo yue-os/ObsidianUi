@@ -10,7 +10,7 @@ function InforModule:Build(window, Library, userKey)
 
 	local infoTab = Library:CreateTab("Info", "user")
 
-	local UserBox = InforTab:AddGroupLeft("User Profile")
+	local UserBox = InfoTab:AddGroupLeft("User Profile")
 
 	local AvatarFrame = Instance.new("Frame")
 	AvatarFrame.Size = UDim2.new(1, 0, 0, 100)
