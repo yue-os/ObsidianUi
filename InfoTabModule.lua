@@ -1,33 +1,37 @@
 local InfoModule = {}
 
-function InforModule:Build(window, Library, userKey)
-	local Players = game:GetService("Players")
-	local HttpService = game:GetService("HttpService")
-	local player = Players.LocalPlayer
-	local request = (syn and syn.request) or request or http_request or (http and http.request)
+function InfoModule:Build(window, Library, userKey)
+    local Players = game:GetService("Players")
+    local HttpService = game:GetService("HttpService")
+    local player = Players.LocalPlayer
+    local request = (syn and syn.request) or request or http_request or (http and http.request)
 
-	local serverUrl = "https://roblox-keysystem-silk.vercel.app"
+    local serverUrl = "https://roblox-keysystem-silk.vercel.app"
 
-	local infoTab = Library:CreateTab("Info", "user")
+    -- Fix: The library uses window:AddTab, not Library:CreateTab
+    local infoTab = window:AddTab("Info", "user")
 
-	local UserBox = InfoTab:AddGroupLeft("User Profile")
+    -- Fix: The library uses AddLeftGroupbox, not AddGroupLeft
+    local UserBox = infoTab:AddLeftGroupbox("User Profile")
 
-	local AvatarFrame = Instance.new("Frame")
-	AvatarFrame.Size = UDim2.new(1, 0, 0, 100)
-	AvatarFrame.BackgroundTransparency = 1
-	AvatarFrame.Parent = UserBox.Container
+    local AvatarFrame = Instance.new("Frame")
+    AvatarFrame.Size = UDim2.new(1, 0, 0, 100)
+    AvatarFrame.BackgroundTransparency = 1
+    AvatarFrame.Parent = UserBox.Container
 
-	local AvatarImage = Instance.new("ImageLabel")
-	AvatarImage.Size = UDim2.FromOffset(100, 100)
-	AvatarImage.Position = UDim2.fromScale(0.5, 0)
-	AvatarImage.BackgroundTransparency = 1
+    local AvatarImage = Instance.new("ImageLabel")
+    -- Fix: UDim2.fromOffset requires a lowercase 'f'
+    AvatarImage.Size = UDim2.fromOffset(100, 100)
+    AvatarImage.Position = UDim2.fromScale(0.5, 0)
+    AvatarImage.AnchorPoint = Vector2.new(0.5, 0)
+    AvatarImage.BackgroundTransparency = 1
 
-	pcall(function()
-		AvatarImage.Image = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-	end)
-	AvatarImage.Parent = AvatarFrame
+    pcall(function()
+        AvatarImage.Image = Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    end)
+    AvatarImage.Parent = AvatarFrame
 
-	Instance.new("UICorner", AvatarImage).CornerRadius = UDim.new(0, 8) 
+    Instance.new("UICorner", AvatarImage).CornerRadius = UDim.new(0, 8) 
     local stroke = Instance.new("UIStroke", AvatarImage)
     stroke.Color = Library.Scheme.OutlineColor
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -51,7 +55,7 @@ function InforModule:Build(window, Library, userKey)
     -- ==========================================
     -- RIGHT SIDE: KEY STATISTICS
     -- ==========================================
-    local StatsBox = InfoTab:AddRightGroupbox("Key Statistics")
+    local StatsBox = infoTab:AddRightGroupbox("Key Statistics")
 
     local TypeLabel = StatsBox:AddLabel("Key Type: Loading...")
     local StatusLabel = StatsBox:AddLabel("Status: Loading...")
