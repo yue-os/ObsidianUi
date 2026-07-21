@@ -6,12 +6,10 @@ function InfoModule:Build(window, Library, userKey)
     local player = Players.LocalPlayer
     local request = (syn and syn.request) or request or http_request or (http and http.request)
 
+    -- 🔴 FIX 1: Point to your Express Render Backend, NOT your Vercel Frontend!
     local serverUrl = "https://roblox-keysystem-6xwi.onrender.com"
 
-    -- Fix: The library uses window:AddTab, not Library:CreateTab
     local infoTab = window:AddTab("Info", "user")
-
-    -- Fix: The library uses AddLeftGroupbox, not AddGroupLeft
     local UserBox = infoTab:AddLeftGroupbox("User Profile")
 
     local AvatarFrame = Instance.new("Frame")
@@ -20,7 +18,6 @@ function InfoModule:Build(window, Library, userKey)
     AvatarFrame.Parent = UserBox.Container
 
     local AvatarImage = Instance.new("ImageLabel")
-    -- Fix: UDim2.fromOffset requires a lowercase 'f'
     AvatarImage.Size = UDim2.fromOffset(100, 100)
     AvatarImage.Position = UDim2.fromScale(0.5, 0)
     AvatarImage.AnchorPoint = Vector2.new(0.5, 0)
@@ -36,7 +33,9 @@ function InfoModule:Build(window, Library, userKey)
     stroke.Color = Library.Scheme.OutlineColor
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    UserBox:Resize()
+    task.defer(function()
+        UserBox:Resize()
+    end)
 
     UserBox:AddLabel("Username: " .. player.Name)
     UserBox:AddLabel("Display Name: " .. player.DisplayName)
@@ -45,7 +44,7 @@ function InfoModule:Build(window, Library, userKey)
 
     UserBox:AddButton("Copy Key", function()
         if setclipboard then
-            setclipboard(tostring(userKey))
+            pcall(setclipboard, tostring(userKey))
             Library:Notify("Key successfully copied to clipboard!", 3)
         else
             Library:Notify("Your executor does not support copying.", 3)
@@ -81,9 +80,12 @@ function InfoModule:Build(window, Library, userKey)
                     return HttpService:JSONDecode(response.Body)
                 end)
 
-                if success and data then
-                    TypeLabel:SetText("Key Type: " .. data.type)
-                    HwidLabel:SetText("HWIDs Used: " .. tostring(data.hwids_used) .. " / " .. tostring(data.max_hwids))
+                if success and type(data) == "table" then
+                    TypeLabel:SetText("Key Type: " .. tostring(data.type or "Free Key"))
+                    
+                    local hwidsUsed = data.hwids_used or 0
+                    local maxHwids = data.max_hwids or 1
+                    HwidLabel:SetText("HWIDs Used: " .. tostring(hwidsUsed) .. " / " .. tostring(maxHwids))
 
                     if data.is_expired then
                         StatusLabel:SetText("Status: Expired / Revoked")
@@ -91,21 +93,41 @@ function InfoModule:Build(window, Library, userKey)
                         StatusLabel:SetText("Status: Active")
                     end
 
-                    if data.type == "Lifetime" then
-                        TimeLabel:SetText("Time Remaining: Lifetime")
+                    if data.type == "Lifetime" or tostring(userKey):find("LIFE") then
+                        TimeLabel:SetText("Time Remaining: Lifetime (Never Expires)")
                     else
+                        -- 🔴 FIX 2: Safely parse ISO Date String or Epoch MS
+                        local expireMs = 0
+                        if type(data.expires_at) == "number" then
+                            expireMs = data.expires_at
+                        elseif type(data.expires_at) == "string" then
+                            pcall(function()
+                                local dt = DateTime.fromIsoDate(data.expires_at)
+                                if dt then expireMs = dt.UnixTimestampMillis end
+                            end)
+                        end
+
                         local currentMs = os.time() * 1000
-                        local remainingMs = data.expires_at - currentMs
+                        local remainingMs = expireMs - currentMs
 
                         if remainingMs > 0 then
                             local days = math.floor(remainingMs / (1000 * 60 * 60 * 24))
                             local hours = math.floor((remainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-                            TimeLabel:SetText(string.format("Time Remaining: %d Days, %d Hours", days, hours))
+                            local mins = math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60))
+                            
+                            if days > 0 then
+                                TimeLabel:SetText(string.format("Time Remaining: %d Days, %d Hours", days, hours))
+                            else
+                                TimeLabel:SetText(string.format("Time Remaining: %d Hours, %d Mins", hours, mins))
+                            end
                         else
-                            TimeLabel:SetText("Time Remaining: 0 Days (Expired)")
+                            TimeLabel:SetText("Time Remaining: Expired")
                         end
                     end
-                    StatsBox:Resize()
+                    
+                    task.defer(function()
+                        StatsBox:Resize()
+                    end)
                 else
                     StatusLabel:SetText("Status: Failed to parse server data.")
                 end
@@ -115,7 +137,7 @@ function InfoModule:Build(window, Library, userKey)
         end)
     end
 
-    local RefreshButton = StatsBox:AddButton("Refresh Stats", function()
+    StatsBox:AddButton("Refresh Stats", function()
         Library:Notify("Refreshing statistics...", 2)
         TypeLabel:SetText("Key Type: Loading...")
         StatusLabel:SetText("Status: Loading...")
